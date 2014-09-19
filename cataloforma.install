@@ -1,0 +1,233 @@
+<?php
+// $Id$
+
+
+/**
+ * Implementation of hook_schema().
+ */
+function cataloforma_schema(){
+  $schema = array();
+  $schema['tbl_formations'] = array(
+    'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'size' => 'normal',
+        'not null' => TRUE,
+      ),
+      'intitule' => array(
+        'type' => 'text',
+        'size' => 'normal',
+        'not null' => TRUE,
+      ),
+      'code' => array(
+        'type' => 'varchar',
+        'length' => '100',
+        'default' => '',
+      ),
+      'intervenants' => array(
+        'type' => 'text',
+        'size' => 'normal',
+      ),
+      'intervenants_names' => array(
+        'type' => 'text',
+        'size' => 'normal',
+      ),
+      'nbr_credits' => array(
+        'type' => 'text',
+        'size' => 'normal',
+      ),
+      'modalite' => array(
+        //'description' => "0 non specifie, 1 presentiel, 2 blended learning, 3 a distance",
+        'type' => 'int',
+        'size' => 'tiny',
+      ),
+      'objectifs' => array(
+        'type' => 'text',
+        'size' => 'normal',
+      ),
+      'deroulement' => array(
+        'type' => 'text',
+        'size' => 'normal',
+      ),
+      'fiche' => array(
+        //'description' => "id fiche de la formation a telecharger",
+        'type' => 'text',
+        'size' => 'normal',
+      ),
+      'places' => array(
+        //'description' => "nbr de places maximum disponibles, une valeur de 0 correspond à un nombre illimité",
+        'type' => 'int',
+        'size' => 'normal',
+        'default' => 0,
+      ),
+      'nbr_inscrits' => array(
+        'type' => 'int',
+        'size' => 'normal',
+        'default' => 0,
+      ),
+      'date_debut' => array(
+        'type' => 'int',
+        'size' => 'normal',
+      ),
+      'date_fin' => array(
+        'type' => 'int',
+        'size' => 'normal',
+      ),
+      'date_limite' => array(
+        'type' => 'int',
+        'size' => 'normal',
+      ),
+      'contact_nom' => array(
+        'type' => 'text',
+        'size' => 'normal',
+      ),
+      'contact_mail' => array(
+        'type' => 'text',
+        'size' => 'normal',
+      ),
+      'condition_acces' => array(
+        //'description' => "condition d'acces a la formation ecrite sous forme de preposition booleenne",
+        'type' => 'text',
+        'size' => 'normal',
+      ),
+      'remarques' => array(
+        'type' => 'text',
+        'size' => 'normal',
+      ),
+      'is_publie' => array(
+        //'description' => " 1 indique que la formation est visible a tous, 0 uniquement aux gestionnaires",
+        'type' => 'int',
+        'size' => 'tiny',
+      ),
+      'date_created' => array(
+        'type' => 'int',
+        'size' => 'normal',
+      ),
+      'date_lastmodif' => array(
+        'type' => 'int',
+        'size' => 'normal',
+      ),
+      'id_modifby' => array(
+        //'description' => "identifiant de l'utilisateur qui a ajoute ou modifie en dernier la formation",
+        'type' => 'int',
+        'size' => 'normal',
+      ),
+      'annee_acad' => array(
+        'type' => 'int',
+        'size' => 'normal',
+      ),
+      'lieu' => array(
+        'type' => 'text',
+        'size' => 'normal',
+      ),
+      'id_type' => array(
+        'type' => 'int',
+        'size' => 'normal',
+      ),
+    ),
+    'primary key' => array('id'),
+  );
+  
+  $schema['tbl_formation_lcms'] = array(
+    'fields' => array(
+      'id_formation' => array(
+        'type' => 'int',
+        'size' => 'normal',
+        'not null' => TRUE,
+      ),
+      'code_cours' => array(
+        'type' => 'varchar',
+        'length' => '20',
+        'not null' => TRUE,
+      ),
+      'intitule' => array(
+        'type' => 'text',
+        'size' => 'normal',
+        'not null' => TRUE,
+      ),
+      'date_inscription' => array(
+        //'description' => "date a laquelle les utilisateurs doivent etre inscrits au cours en ligne, une date vide correspond au lendemain de l'inscription a la formation",
+        'type' => 'int',
+        'size' => 'normal',
+      ),
+	    'date_fin_inscription' => array(
+        //'description' => "date a laquelle les utilisateurs ne doivent plus etre inscrits au cours en ligne, une date vide correspond à toujours inscrits",
+        'type' => 'int',
+        'size' => 'normal',
+      ),
+    ),
+    'primary key' => array('id_formation','code_cours'),
+  );
+  $schema['tbl_formation_inscrits'] = array(
+    'fields' => array(
+      'id_formation' => array(
+        'type' => 'int',
+        'size' => 'normal',
+        'not null' => TRUE,
+      ),
+      'uid' => array(
+        'type' => 'int',
+        'size' => 'normal',
+        'not null' => TRUE,
+      ),
+      'date_inscription' => array(
+        'type' => 'int',
+        'size' => 'normal',
+      ),
+      'is_annule' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+      ),
+      'is_present' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+      ),
+    ),
+    'primary key' => array('id_formation','uid'),  
+  );  
+   
+  $schema['tbl_formation_types'] = array(
+    'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'size' => 'normal',
+        'not null' => TRUE,
+      ),
+      'intitule' => array(
+        'type' => 'varchar',
+        'length' => '50',
+        'not null' => TRUE,
+      )
+    ),
+    'primary key' => array('id'),
+  );  
+  $schema['tbl_formation_logs'] = array(
+    'fields' => array(
+      'uid' => array(
+        'type' => 'int',
+        'size' => 'normal',
+      ),
+      'action' => array(
+        'type' => 'varchar',
+        'length' => '20',
+        'default' => '',
+      ),
+      'timestamp' => array(
+        'type' => 'int',
+        'size' => 'normal',
+      ),
+      'id_formation' => array(
+        'type' => 'int',
+        'size' => 'normal',
+      ),
+      'id_inscrit' => array(
+        'type' => 'int',
+        'size' => 'normal',
+      ),
+    ),
+    'primary key' => array('uid','action','timestamp','id_formation','id_inscrit'),
+  );
+  return $schema;
+}

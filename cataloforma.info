@@ -1,0 +1,8 @@
+<?php
+; $Id$
+name = Agenda des formations
+description = "Outil de gestion d'un catalogue de formations avec gestion des inscriptions"
+core = 7.x
+
+
+
