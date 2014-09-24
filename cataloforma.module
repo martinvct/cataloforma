@@ -1838,7 +1838,7 @@ function theme_cataloforma_ajax_formations($variables){
     if(user_access(CATALOFORMA_PERM_ADMIN)) $content .= "<td><input type='checkbox' name='formations[]' value='".$formation->id."' ".(!empty($data['formations']) && in_array($formation->id, $data['formations']) ? "checked" : "")." /></td>";
     $content .= "
         <td>".date(CATALOFORMA_FORMAT_DATE_HEURE, $formation->date_debut)." ".t("a")." ".date(CATALOFORMA_FORMAT_HEURE, $formation->date_fin)."</td>
-        <td><a href='./formation/code/".(!empty($data) ? urlencode(utf8_decode($formation->code)) : urlencode($formation->code))."'>".(!empty($data) ? utf8_decode($formation->code) : $formation->code)."</a></td>
+        <td><a href='' class='formations_bycode'>".(!empty($data) ? utf8_decode($formation->code) : $formation->code)."</a></td>
         <td><div class='formation_color_".$formation->status."'><a href='./formation/view/".$formation->id."'>".(!empty($data) ? utf8_decode($formation->intitule) : $formation->intitule)."</a></div></td>
       </tr>
     ";

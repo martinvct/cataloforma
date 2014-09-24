@@ -206,6 +206,13 @@
         getFormations();
       });
 
+      $('.formations_bycode').click(function(){
+        $('#code').val($(this).html());
+        $('code_op').val('E');
+        $('#pager_formations').val('0');
+        getFormations();
+      });
+
       $('#pub_formations').click(function(){
         var dataString = $('#formationsForm').serialize();
         $.ajax({
