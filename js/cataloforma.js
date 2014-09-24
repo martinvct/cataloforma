@@ -162,7 +162,7 @@
       });
 
     }
-    else if ($('#formationsForm').length() > 0) { // formulaire de recherche de formations
+    else if ($('#formationsForm').length) { // formulaire de recherche de formations
       $('#new_inscrit').autocomplete({
         serviceUrl: "../../ajax/user/search",
         dataType: 'json',
@@ -382,6 +382,13 @@
       var x;
       getFormations(x, $(this).attr('pager'));
     });
+    $('.formations_bycode').click(function(){
+      $('#code').val($(this).html());
+      $('code_op').val('E');
+      $('#pager_formations').val('0');
+      getFormations();
+    });
+    
   }
 
   function getFormations(colonne, pager){
