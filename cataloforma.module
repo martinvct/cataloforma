@@ -19,6 +19,21 @@ define("CATALOFORMA_DEFAULT_MAIL", 'e.nivart@ulg.ac.be');
 define("CATALOFORMA_PAGER_NBR", 25);
 
 
+/******************
+TODO :
+
+
+  - finir encodage de nouvelle formation / édition de formation / clonage de formation :
+    - bug date
+    - téléchargement fiche
+    - aspect formulaire
+  - mettre en place contrôle d'accès des pages et des appels AJAX
+  - tester les inscriptions : ajout, suppression, presence, puiblipostage, telecharger, 
+  - ajouter la synchronisation des inscriptions dans ecampus
+****************/
+
+
+
 class CataloformaLog {
   public $uid;
   public $action;
@@ -76,6 +91,12 @@ function cataloforma_menu(){
     'title' => '',
     'page callback' => 'cataloforma_formationedit_page',
     'page arguments' => array(2),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+  $items['formation/new'] = array(
+    'title' => '',
+    'page callback' => 'cataloforma_formationedit_page',
     'access callback' => TRUE,
     'type' => MENU_CALLBACK,
   );
@@ -789,7 +810,7 @@ function cataloforma_ajax_user_name_page(){
 
 function cataloforma_ajax_formation_upd_page(){
   global $user;
-  if (!isset($_POST['id_formation'])) {
+  if (isset($_POST['id_formation'])) {
     $id_formation = $_POST['id_formation'];   
     $formation = new stdClass();
     $formation->intitule           = $_POST['intitule'];
@@ -798,21 +819,30 @@ function cataloforma_ajax_formation_upd_page(){
     $formation->intervenants_names = $_POST['intervenants_names'];
     $formation->nbr_credits        = $_POST['nbr_credits'];
     $formation->modalite           = $_POST['modalite'];
-    $formation->objectifs          = $_POST['objectifs'];
-    $formation->deroulement        = $_POST['deroulement'];
+    $formation->objectifs          = $_POST['ck_objectifs'];
+    $formation->deroulement        = $_POST['ck_deroulement'];
     $formation->places             = $_POST['places'];
-    $formation->date_debut         = $_POST['date_debut'];
-    $formation->date_fin           = $_POST['date_fin'];
-    $formation->date_limite        = $_POST['date_limite'];
+
+    list($jour, $mois, $annee, $heure, $min) = sscanf($_POST['date_debut_date']." ".$_POST['date_debut_heure'], "%u/%u/%u %u:%u");
+    $formation->date_debut         = mktime($heure, $min, 0, $mois, $jour, $annee);
+
+    list($jour, $mois, $annee, $heure, $min) = sscanf($_POST['date_debut_date']." ".$_POST['date_fin_heure'], "%u/%u/%u %u:%u");
+    $formation->date_fin           = mktime($heure, $min, 0, $mois, $jour, $annee);
+
+    list($jour, $mois, $annee, $heure, $min) = sscanf($_POST['date_limite'], "%u/%u/%u %u:%u");
+    $formation->date_limite        = mktime($heure, $min, 0, $mois, $jour, $annee);
+    if(!$formation->date_limite) $formation->date_limite = null;
+
     $formation->contact_nom        = $_POST['contact_nom'];
     $formation->contact_mail       = $_POST['contact_mail'];
     $formation->condition_acces    = $_POST['condition_acces'];
-    $formation->remarques          = $_POST['remarques'];
-    $formation->is_publie          = $_POST['is_publie'];
+
+    $formation->remarques          = $_POST['ck_remarques'];
+    $formation->is_publie          = $_POST['publie'];
     $formation->date_lastmodif     = REQUEST_TIME;
     $formation->id_modifby         = $user->uid;
     $formation->annee_acad         = _cataloforma_get_acad($formation->date_debut);
-    $formation->lieu               = $_POST['lieu'];
+    $formation->lieu               = $_POST['ck_lieu'];
     $formation->id_type            = $_POST['id_type'];
     if($id_formation == 0) {
       $formation->date_created = REQUEST_TIME;
@@ -841,15 +871,16 @@ function cataloforma_ajax_formation_upd_page(){
         $formation->fiche = $_POST['fiche_pdf'];
       }
     }
-
+    unset($formation->fid);
     if($formation->id > 0){
+
       drupal_write_record('tbl_formations', $formation, 'id');
       print "<div class='message_confirmation'>".t("formation  @titre ajoutee", array('@titre' => $formation->intitule))."</div>";
-      _cataloforma_bd_log(CATALOFORMA_LOG_UPD, $formation->id, $uid);
+      _cataloforma_bd_log(CATALOFORMA_LOG_UPDATE, $formation->id, $user->uid);
     } else {
       drupal_write_record('tbl_formations', $formation);
       print "<div class='message_confirmation'>".t("formation  @titre modifiee", array('@titre' => $formation->intitule))."</div>";
-      _cataloforma_bd_log(CATALOFORMA_LOG_ADD, $formation->id, $uid);
+      _cataloforma_bd_log(CATALOFORMA_LOG_ADD, $formation->id, $user->uid);
       if(!empty($formation->fiche)){
         $destination       = file_destination(variable_get('file_public_path', conf_path() . '/files').'/cataloforma/fiche'.$formation->id.'.pdf', FILE_EXISTS_REPLACE);
         rename($formation->fiche, $destination);
@@ -1226,6 +1257,20 @@ function theme_cataloforma_formation_view($variables){
     </tr><!--formation_field-->
   ";
   
+
+  if(!empty($formation->remarques)){
+    $content .= "    
+      <tr class='formation_field'>
+        <td class='formation_label'>
+          <label for='remarques'>".t('remarques')."</label>
+        </td><!-- formation_label-->
+        <td class='formation_value'>
+          <span id='remarques'>".check_plain($formation->remarques)."</span>
+        </td><!--formation_value-->
+      </tr><!--formation_field-->
+    ";
+  }
+
   if(user_access(CATALOFORMA_PERM_ADMIN)){
     $content .= "
       <tr class='formation_field'>
@@ -1320,12 +1365,32 @@ function theme_cataloforma_formation_edit($variables){
   drupal_add_js('sites/all/modules/cataloforma/js/jquery.autocomplete.min.js');
   drupal_add_js('sites/all/modules/cataloforma/js/jquery.msgbox.min.js');
   drupal_add_js('sites/all/modules/cataloforma/js/cataloforma.js');
+  drupal_add_js('sites/all/libraries/ckeditor/ckeditor.js');
+  drupal_add_js('sites/all/libraries/ckeditor/adapters/jquery.js');
   $content = "
-    <H1>$formation->intitule <span>( $formation->code )</span></H1>
+    <H1>".(isset($formation) ? "$formation->intitule <span>( $formation->code )</span>" : t('nouvelle formation'))."</H1>
     <div id='messageFormation' class='message'></div>
     <div class='formation'>
     <form id='formationForm' method='post' name='formationForm' enctype='multipart/form-data'>  
     <table>
+      <tr class='formation_field'>
+        <td class='formation_label'>
+          <label for='intitule'>".t('intitule')."</label>
+        </td><!-- formation_label-->
+        <td class='formation_value'>
+          <input type='text' name='intitule' id='intitule' value='".((isset($formation->intitule)) ? $formation->intitule : "")."' />
+        </td><!--formation_value-->
+      </tr><!--formation_field-->
+
+      <tr class='formation_field'>
+        <td class='formation_label'>
+          <label for='code'>".t('code')."</label>
+        </td><!-- formation_label-->
+        <td class='formation_value'>
+          <input type='text' name='code' id='code' value='".((isset($formation->code)) ? $formation->code : "")."' />
+        </td><!--formation_value-->
+      </tr><!--formation_field-->
+
       <tr class='formation_field'>
         <td class='formation_label'>
           <label for='date'>".t('date')."</label>
@@ -1341,6 +1406,10 @@ function theme_cataloforma_formation_edit($variables){
   if(!empty($formation->intervenants)){
     $intervenants = explode(',',$formation->intervenants);
     $intervenants_names = explode(',',$formation->intervenants_names);
+  } else {
+    $intervenants = array();
+    $intervenants_names = array();
+  }
     $content .= "
       <tr class='formation_field'>
         <td class='formation_label'>
@@ -1356,12 +1425,12 @@ function theme_cataloforma_formation_edit($variables){
     $content .= "
           </ul>
           <input type='button' id='add_intervenant' name='add_intervenant' value='".t('nouvel intervenant')."'/><input type='text' id='new_intervenant' name='new_intervenant' value=''/>
-          ".'<input type="hidden" id="intervenants" name="intervenants" value=",'.check_plain(str_replace(array(" ","'"),array("_","$"),$formation->intervenants)).',"/>
-          <input type="hidden" id="intervenants_names" name="intervenants_names" value=",'.check_plain(str_replace(" ","_",$formation->intervenants_names)).',"/>'."
+          ".'<input type="hidden" id="intervenants" name="intervenants" value=",'.(isset($formation) ? check_plain(str_replace(array(" ","'"),array("_","$"),$formation->intervenants)) : "").',"/>
+          <input type="hidden" id="intervenants_names" name="intervenants_names" value=",'.(isset($formation) ? check_plain(str_replace(" ","_",$formation->intervenants_names)) : "").',"/>'."
         </td><!--formation_value-->
       </tr><!--formation_field-->
     ";
-  }
+  
   
   $content .= "    
     <tr class='formation_field'>
@@ -1369,7 +1438,7 @@ function theme_cataloforma_formation_edit($variables){
         <label for='objectifs'>".t('objectifs')."</label>
       </td><!-- formation_label-->
       <td class='formation_value'>
-        <textarea id='objectifs' cols='50' rows='5'>".((!empty($formation->objectifs)) ? check_plain($formation->objectifs) : "")."</textarea>
+        <textarea name='objectifs' class='editor' id='objectifs' cols='50' rows='5'>".((!empty($formation->objectifs)) ? check_plain($formation->objectifs) : "")."</textarea>
       </td><!--formation_value-->
     </tr><!--formation_field-->
   ";
@@ -1380,7 +1449,7 @@ function theme_cataloforma_formation_edit($variables){
         <label for='deroulement'>".t('deroulement')."</label>
       </td><!-- formation_label-->
       <td class='formation_value'>
-        <textarea id='deroulement' cols='50' rows='5'>".((!empty($formation->deroulement)) ? check_plain($formation->deroulement) : "")."</textarea>
+        <textarea name='deroulement' class='editor' id='deroulement' cols='50' rows='5'>".((!empty($formation->deroulement)) ? check_plain($formation->deroulement) : "")."</textarea>
       </td><!--formation_value-->
     </tr><!--formation_field-->
   ";
@@ -1391,7 +1460,7 @@ function theme_cataloforma_formation_edit($variables){
         <label for='places'>".t('places')."</label>
       </td><!-- formation_label-->
       <td class='formation_value'>
-        <input type='text' id='places' value='".((isset($formation->places)) ? $formation->places : 0)."' />
+        <input type='text' name='places' id='places' value='".((isset($formation->places)) ? $formation->places : 0)."' />
       </td><!--formation_value-->
     </tr><!--formation_field-->
   ";
@@ -1402,7 +1471,7 @@ function theme_cataloforma_formation_edit($variables){
         <label for='lieu'>".t('lieu')."</label>
       </td><!-- formation_label-->
       <td class='formation_value'>
-        <input type='text' id='lieu' value='".((!empty($formation->lieu)) ? check_plain($formation->lieu) : "")."' />
+        <textarea type='text' name='lieu' class='editor' id='lieu' cols='50' rows='5'>".((!empty($formation->lieu)) ? check_plain($formation->lieu) : "")."</textarea>
       </td><!--formation_value-->
     </tr><!--formation_field-->
   ";
@@ -1413,7 +1482,7 @@ function theme_cataloforma_formation_edit($variables){
         <label for='credits'>".t('credits')."</label>
       </td><!-- formation_label-->
       <td class='formation_value'>
-        <input type='text' id='nbr_credits' value='".((isset($formation->nbr_credits)) ? $formation->nbr_credits : 0)."' />
+        <input type='text' name='nbr_credits' id='nbr_credits' value='".((isset($formation->nbr_credits)) ? $formation->nbr_credits : 0)."' />
       </td><!--formation_value-->
     </tr><!--formation_field-->
   ";
@@ -1440,7 +1509,7 @@ function theme_cataloforma_formation_edit($variables){
         <label for='contact_nom'>".t('contact nom')."</label>
       </td><!-- formation_label-->
       <td class='formation_value'>
-        <input type='text' id='contact_nom' value='".((!empty($formation->contact_nom)) ? check_plain($formation->contact_nom) : "")."' />
+        <input type='text' name='contact_nom' id='contact_nom' value='".((!empty($formation->contact_nom)) ? check_plain($formation->contact_nom) : "")."' />
       </td><!--formation_value-->
     </tr><!--formation_field-->
   ";
@@ -1451,7 +1520,7 @@ function theme_cataloforma_formation_edit($variables){
         <label for='contact_mail'>".t('contact mail')."</label>
       </td><!-- formation_label-->
       <td class='formation_value'>
-        <input type='text' id='contact_mail' value='".((!empty($formation->contact_mail)) ? check_plain($formation->contact_mail) : "")."' />
+        <input type='text' name='contact_mail' id='contact_mail' value='".((!empty($formation->contact_mail)) ? check_plain($formation->contact_mail) : "")."' />
       </td><!--formation_value-->
     </tr><!--formation_field-->
   ";
@@ -1487,7 +1556,7 @@ function theme_cataloforma_formation_edit($variables){
       <td class='formation_value'>
         <select name='id_type' name='id_type'>";
     foreach($id_types as $id_type){
-      $content .= "<option value='".$id_type->id."' ".(((empty($formation))&&($id_type->id == 1))||($id_type->id == $formation->id_type)? "checked": "")." >".check_plain($id_type->intitule)."</option";
+      $content .= "<option value='".$id_type->id."' ".(((empty($formation))&&($id_type->id == 1))||((!empty($formation))&&($id_type->id == $formation->id_type))? "checked": "")." >".check_plain($id_type->intitule)."</option>";
     }
   $content .="
         </select>
@@ -1502,9 +1571,9 @@ function theme_cataloforma_formation_edit($variables){
         <label for='modalite'>".t('modalite')."</label>
       </td><!-- formation_label-->
       <td class='formation_value'>
-        <select name='modalite' name='modalite'>";
+        <select name='modalite' id='modalite'>";
     foreach($modalites as $m => $modalite){
-      $content .= "<option value='".$m."' ".(((empty($formation))&&($m == 1))||($m == $formation->modalite)? "checked": "")." >".check_plain($modalite)."</option";
+      $content .= "<option value='".$m."' ".(((empty($formation))&&($m == 1))||((!empty($formation))&&($m == $formation->modalite))? "checked": "")." >".check_plain($modalite)."</option>";
     }
   $content .="
         </select>
@@ -1512,6 +1581,16 @@ function theme_cataloforma_formation_edit($variables){
     </tr><!--formation_field-->
   ";
 
+  $content .= "    
+    <tr class='formation_field'>
+      <td class='formation_label'>
+        <label for='remarques'>".t('remarques')."</label>
+      </td><!-- formation_label-->
+      <td class='formation_value'>
+        <textarea name='remarques' class='editor' id='remarques' cols='50' rows='5'>".((!empty($formation->remarques)) ? check_plain($formation->remarques) : "")."</textarea>
+      </td><!--formation_value-->
+    </tr><!--formation_field-->
+  ";
 
   if(user_access(CATALOFORMA_PERM_ADMIN)){
     $content .= "
@@ -1520,7 +1599,7 @@ function theme_cataloforma_formation_edit($variables){
           <label for='publie'>".t('publie')."</label>
         </td><!-- formation_label-->
         <td class='formation_value'>
-          <select id='publie'>
+          <select id='publie' name='publie'>
             <option name='1' ".((!$clone && !empty($formation) && ($formation->is_publie == 1)) ? "checked" : "")." >".t('oui')."</option>
             <option name='0' ".(($clone || empty($formation) || ($formation->is_publie == 0)) ? "checked" : "")." >".t('non')."</option>
           </select>
@@ -2939,10 +3018,6 @@ function _cataloforma_cookie_recherche_clean(){
   setcookie("cataloforma_recherche", serialize(array()), (REQUEST_TIME - 3600));
 }
 
-
-
-
-
 function _cataloforma_old_ifres_transfert(){
   $output = " ";
   $convert_uids = array();
@@ -3094,7 +3169,7 @@ function _cataloforma_old_ifres_transfert(){
         
         $log = new CataloformaLog();
         $log->uid          = 1;
-        $log->action       = CATALOFORMA_LOG_UPD;
+        $log->action       = CATALOFORMA_LOG_UPDATE;
         $log->timestamp    = REQUEST_TIME;
         $log->id_formation = $formation->id;
         $log->id_inscrit   = 0;

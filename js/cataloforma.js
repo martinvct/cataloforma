@@ -1,6 +1,11 @@
 (function ($) { 
   const CATALOFORMA_PAGER_NBR = 25;
+
   $(document).ready(function(){ 
+
+    var location = window.location;
+    location = location.pathname.substring(0, location.pathname.indexOf('/',2) + 1);
+
     $('table.recherche_avancee').hide();
     if($('#messageMail').length) {//Formulaire d'envoi de rappels
       $('#clearAttachment').hide();
@@ -13,7 +18,7 @@
         $.ajax({
           type:"POST",
           async:false,
-          url: "../ajax/inscrits/mail",
+          url: location+"ajax/inscrits/mail",
           data: new FormData(document.forms.namedItem("publipostageForm")),
           //dataType: 'text',
           processData: false,
@@ -23,7 +28,7 @@
         });
       });
       $('#view_formation').click(function(){  
-        window.location = "../formation/view/"+$('#id_formation').val(); 
+        window.location = location+"formation/view/"+$('#id_formation').val(); 
       });
       $('#clearAttachment').click(function(){
         $('#attachmentMail').wrap('<form>').parent('form').trigger('reset');
@@ -41,7 +46,7 @@
         $('#clearPdf').hide();
       });
        $('#new_intervenant').autocomplete({
-        serviceUrl: "../../ajax/user/search",
+        serviceUrl: location+"ajax/user/search",
         dataType: 'json',
         minChars: 4,
         onSelect: function(suggestion){ $('#new_intervenant').val(suggestion.data); }
@@ -50,7 +55,7 @@
         $.ajax({
           type:"POST",
           async:false,
-          url: "../../ajax/user/name",
+          url: location+"ajax/user/name",
           data: "new_intervenant="+$('#new_intervenant').val(),
           dataType: 'json',
           success: addIntervenant,
@@ -61,11 +66,16 @@
           remIntervenant($(this).parent().attr('id'));
       });
       $('#upd_formation').click(function(){
+        var data = new FormData(document.forms.namedItem("formationForm"));
+        data.append('ck_objectifs', CKEDITOR.instances.objectifs.getData());
+        data.append('ck_deroulement', CKEDITOR.instances.deroulement.getData());
+        data.append('ck_lieu', CKEDITOR.instances.lieu.getData());
+        data.append('ck_remarques', CKEDITOR.instances.remarques.getData());
         $.ajax({
           type:"POST",
           async:false,
-          url: "../ajax/formation/upd",
-          data: new FormData(document.forms.namedItem("formationForm")),
+          url: location+"ajax/formation/upd",
+          data: data,
           //dataType: 'text',
           processData: false,
           contentType: false,
@@ -75,18 +85,18 @@
       });
       $('#view_formation').click(function(){
         if($('#id_formation').val() > 0){
-          window.location = "../formation/view/"+$('#id_formation').val(); 
+          window.location = location+"formation/view/"+$('#id_formation').val(); 
         } else if ($('#id_clone').val() > 0) {
-          window.location = "../formation/view/"+$('#id_clone').val(); 
+          window.location = location+"formation/view/"+$('#id_clone').val(); 
         } else {
-          window.location = "../formations";
+          window.location = location+"formations";
         } 
       });
     }
     else if($('#liste_inscrits').length) {//Formulaire de gestion des inscrits d'une formation
       initInscrits();
       $('#new_inscrit').autocomplete({
-        serviceUrl: "../../ajax/user/search",
+        serviceUrl: location+"ajax/user/search",
         dataType: 'json',
         minChars: 4,
         onSelect: function(suggestion){ $('#new_inscrit').val(suggestion.data); }
@@ -108,7 +118,7 @@
         $.ajax({
           type:"POST",
           async:false,
-          url: "../../ajax/inscrit/add",
+          url: location+"ajax/inscrit/add",
           data: dataString,
           dataType: 'text',
           success: function(message){ messageInscrits(message); getInscrits(); },
@@ -121,7 +131,7 @@
         $.ajax({
           type:"POST",
           async:false,
-          url: "../../ajax/inscrits/del",
+          url: location+"ajax/inscrits/del",
           data: dataString,
           dataType: 'text',
           success: function(message){ messageInscrits(message); getInscrits(); },
@@ -130,24 +140,24 @@
       });
 
       $('#mail_inscrits').click(function(){ 
-        $('#inscritsForm').attr('action', '../../formation/publipostage');
+        $('#inscritsForm').attr('action', location+'formation/publipostage');
         $('#inscritsForm').submit();
       });
 
       $('#csv_inscrits').click(function(){
-        window.location = "../../ajax/inscrits/csv?id_formation="+$('#id_formation').val();
+        window.location = location+"ajax/inscrits/csv?id_formation="+$('#id_formation').val();
       });
 
       $('#csv_presences').click(function(){
-        window.location = "../../ajax/presences/csv?id_formation="+$('#id_formation').val();
+        window.location = location+"ajax/presences/csv?id_formation="+$('#id_formation').val();
       });
 
       $('#edit_formation').click(function(){
-        window.location = "../formation/edit/"+$('#id_formation').val();
+        window.location = location+"formation/edit/"+$('#id_formation').val();
       });
 
       $('#clone_formation').click(function(){
-        window.location = "../formation/edit/"+$('#id_formation').val()+"?clone=true";
+        window.location = location+"formation/edit/"+$('#id_formation').val()+"?clone=true";
       });
 
       $('#del_formation').click(function(){
@@ -164,7 +174,7 @@
     }
     else if ($('#formationsForm').length) { // formulaire de recherche de formations
       $('#new_inscrit').autocomplete({
-        serviceUrl: "../../ajax/user/search",
+        serviceUrl: location+"ajax/user/search",
         dataType: 'json',
         minChars: 4,
         onSelect: function(suggestion){ $('#new_inscrit').val(suggestion.data); }
@@ -175,7 +185,7 @@
         $.ajax({
           type:"POST",
           async:false,
-          url: "../../ajax/inscrit/add",
+          url: location+"ajax/inscrit/add",
           data: dataString,
           dataType: 'text',
           success: function(message){ messageFormations(message); },
@@ -218,7 +228,7 @@
         $.ajax({
           type:"POST",
           async:false,
-          url: "./ajax/formations/publish",
+          url: location+"ajax/formations/publish",
           data: dataString,
           dataType: 'text',
           success: refreshFormations,
@@ -231,7 +241,7 @@
         $.ajax({
           type:"POST",
           async:false,
-          url: "./ajax/formations/unpublish",
+          url: location+"ajax/formations/unpublish",
           data: dataString,
           dataType: 'text',
           success: refreshFormations,
@@ -240,7 +250,7 @@
       });
 
       $('#add_formation').click(function(){
-        window.location = ".formation/edit/0";
+        window.location = location+"formation/edit/0";
       });
 
       $('#formations_clrsearch_button').click(function(){
@@ -260,7 +270,9 @@
 
     }
 
-    
+    if($.fn.ckeditor !== undefined){
+      $('textarea.editor').ckeditor(function(){ }, { toolbar_Basic : [  { name: 'document', items : ['Bold', 'Italic', 'Underline', '-', 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'link', 'Unlink', 'Image', '-', 'PasteFromWord' ] } ] , toolbar : 'Basic' } );
+    }
   });
 
   function initInscrits(){
@@ -284,7 +296,7 @@
     $.ajax({
       type:"POST",
       async:false,
-      url: "../../ajax/inscrits/upd",
+      url: location+"ajax/inscrits/upd",
       data: dataString,
       dataType: 'text',
       success: messageInscrits,
@@ -313,7 +325,7 @@
     $.ajax({
       type:"POST",
       async:false,
-      url: "../../ajax/inscrits",
+      url: location+"ajax/inscrits",
       data: dataString,
       dataType: 'text',
       success: refreshInscrits,
@@ -348,6 +360,7 @@
     $('div.remIntervenant').click(function(){
           remIntervenant($(this).parent().attr('id'));
     });
+    cleanIntervenants();
   }
 
   function remIntervenant(intervenant){
@@ -365,6 +378,21 @@
     $('#intervenants').val(tmp.replace("$","'"));
 
     $('li').filter('[id="'+intervenant.replace(/'/g,"$")+'"]').remove();
+    cleanIntervenants();
+  }
+
+  function cleanIntervenants(){
+    var tmp = $('#intervenants_names').val();
+    tmp = tmp.replace(",,",",");
+    if(tmp.charAt(0) == ",") tmp = tmp.substr(1);
+    if(tmp.charAt(tmp.length-1) == ",") tmp = tmp.substr(0, tmp.length-1);
+    $('#intervenants_names').val(tmp);
+
+    var tmp = $('#intervenants').val();
+    tmp = tmp.replace(",,",",");
+    if(tmp.charAt(0) == ",") tmp = tmp.substr(1);
+    if(tmp.charAt(tmp.length-1) == ",") tmp = tmp.substr(0, tmp.length-1);
+    $('#intervenants').val(tmp);
   }
 
   function initFormations(){
@@ -412,7 +440,7 @@
     $.ajax({
       type:"POST",
       async:false,
-      url: "./ajax/formations",
+      url: location+"ajax/formations",
       data: dataString,
       dataType: 'text',
       success: refreshFormations,
@@ -425,7 +453,7 @@
     $.ajax({
       type:"POST",
       async:false,
-      url: "../../ajax/inscrits/upd",
+      url: location+"ajax/inscrits/upd",
       data: dataString,
       dataType: 'text',
       success: messageInscrits,
@@ -460,4 +488,6 @@
   function alertError(xhr, ajaxOptions, thrownError){
     $('div.message').html("Request failed: " + xhr.status+" "+thrownError);
   };
+
+
 })(jQuery);
