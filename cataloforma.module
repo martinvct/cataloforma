@@ -17,8 +17,9 @@ define("CATALOFORMA_PERM_ADMIN", 'admin_cataloforma');
 define("CATALOFORMA_DEFAULT_MAIL", 'e.nivart@ulg.ac.be');
 
 define("CATALOFORMA_PAGER_NBR", 25);
-
-
+define("CATALOFORMA_REGEXP_DATE", "#^(0[1-9]|[12][0-9]|3[01])[/](0[1-9]|1[012])[/](19|20)\d\d$#");
+define("CATALOFORMA_REGEXP_HEURE", "#^([01][0-9]|[2][0-3])[:h]([0-5][0-9])$#");
+define("CATALOFORMA_REGEXP_DATEHEURE", "#^(0[1-9]|[12][0-9]|3[01])[/](0[1-9]|1[012])[/](19|20)\d\d[ ]([01][0-9]|[2][0-3])[:h]([0-5][0-9])$#");
 /******************
 TODO :
 
@@ -813,8 +814,8 @@ function cataloforma_ajax_formation_upd_page(){
   if (isset($_POST['id_formation'])) {
     $id_formation = $_POST['id_formation'];   
     $formation = new stdClass();
-    $formation->intitule           = $_POST['intitule'];
-    $formation->code               = $_POST['code'];
+    $formation->intitule           = trim($_POST['intitule']);
+    $formation->code               = trim($_POST['code']);
     $formation->intervenants       = $_POST['intervenants'];
     $formation->intervenants_names = $_POST['intervenants_names'];
     $formation->nbr_credits        = $_POST['nbr_credits'];
@@ -823,19 +824,19 @@ function cataloforma_ajax_formation_upd_page(){
     $formation->deroulement        = $_POST['ck_deroulement'];
     $formation->places             = $_POST['places'];
 
-    list($jour, $mois, $annee, $heure, $min) = sscanf($_POST['date_debut_date']." ".$_POST['date_debut_heure'], "%u/%u/%u %u:%u");
+    list($jour, $mois, $annee, $heure, $min) = sscanf($_POST['date_debut_date']." ".str_replace("h",":", $_POST['date_debut_heure']), "%u/%u/%u %u:%u");
     $formation->date_debut         = mktime($heure, $min, 0, $mois, $jour, $annee);
 
-    list($jour, $mois, $annee, $heure, $min) = sscanf($_POST['date_debut_date']." ".$_POST['date_fin_heure'], "%u/%u/%u %u:%u");
+    list($jour, $mois, $annee, $heure, $min) = sscanf($_POST['date_debut_date']." ".str_replace("h",":", $_POST['date_fin_heure']), "%u/%u/%u %u:%u");
     $formation->date_fin           = mktime($heure, $min, 0, $mois, $jour, $annee);
 
-    list($jour, $mois, $annee, $heure, $min) = sscanf($_POST['date_limite'], "%u/%u/%u %u:%u");
+    list($jour, $mois, $annee, $heure, $min) = sscanf(str_replace("h",":", $_POST['date_limite']), "%u/%u/%u %u:%u");
     $formation->date_limite        = mktime($heure, $min, 0, $mois, $jour, $annee);
     if(!$formation->date_limite) $formation->date_limite = null;
 
-    $formation->contact_nom        = $_POST['contact_nom'];
-    $formation->contact_mail       = $_POST['contact_mail'];
-    $formation->condition_acces    = $_POST['condition_acces'];
+    $formation->contact_nom        = trim($_POST['contact_nom']);
+    $formation->contact_mail       = trim($_POST['contact_mail']);
+    $formation->condition_acces    = trim($_POST['condition_acces']);
 
     $formation->remarques          = $_POST['ck_remarques'];
     $formation->is_publie          = $_POST['publie'];
@@ -849,6 +850,67 @@ function cataloforma_ajax_formation_upd_page(){
       $formation->nbr_inscrits = 0;
     } else {
       $formation->id = $id_formation;
+    }
+
+    //vérifications
+
+    if(strlen($formation->intitule) == 0){
+      print "<div class='message_erreur'>".t("intitule vide")."</div>";
+      exit;
+    }
+    if(strlen($formation->code) == 0){
+      print "<div class='message_erreur'>".t("code vide")."</div>";
+      exit;
+    }
+    if(!preg_match(CATALOFORMA_REGEXP_DATE, $_POST['date_debut_date'])){
+      print "<div class='message_erreur'>".t("date de debut incorrecte")."</div>";
+      exit;
+    }
+    if((isset($_POST['date_debut_heure'])) && (!preg_match(CATALOFORMA_REGEXP_HEURE, $_POST['date_debut_heure']))){
+      print "<div class='message_erreur'>".t("heure de debut incorrecte")."</div>";
+      exit;
+    }
+    if((isset($_POST['date_fin_heure'])) && (!preg_match(CATALOFORMA_REGEXP_HEURE, $_POST['date_fin_heure']))){
+      print "<div class='message_erreur'>".t("heure de fin incorrecte")."</div>";
+      exit;
+    }
+    if((isset($_POST['date_limite'])) && (!preg_match(CATALOFORMA_REGEXP_DATEHEURE, $_POST['date_limite'])) && (!preg_match(CATALOFORMA_REGEXP_DATE, $_POST['date_limite']))){
+      print "<div class='message_erreur'>".t("date limite incorrecte")."</div>";
+      exit;
+    }
+
+
+    if(strlen($formation->condition_acces) > 0){
+      $str   = "(".$formation->condition_acces.")";
+      $stemp = '';
+      $stest = '';
+      $i     = 0;
+      while($i < strlen($str)){
+        if(ereg("[()!&|]",substr($str,$i,1))){
+          if($stemp != ''){
+            if(!_cataloforma_formation_code_exists($stemp)){
+              print "<div class='message_erreur'>".t("condition access : code inconnu")."</div>";
+              exit;
+            }
+            $stemp = '';
+            $stest .= '1';
+          }
+          $stest .= substr($str,$i,1);
+        } else {
+          $stemp .= substr($str,$i,1);
+        }
+        $stemp = trim($stemp);
+        $i++;
+      }
+      $stest = ereg_replace("[&]{2}"," AND ",$stest);
+      $stest = ereg_replace("[|]{2}"," OR ",$stest);
+      $stest = ereg_replace("[!]"," NOT ",$stest);
+      $stest = ereg_replace("[&]"," ",$stest);
+      $stest = ereg_replace("[|]"," ",$stest);
+      if(_cataloforma_formation_condition_evaluate($stest) == NULL) {
+        print "<div class='message_erreur'>".t("condition access : erreur syntaxe")."</div>";
+        exit;
+      }
     }
 
     //les fiches sont nommées par défaut par fiche suivi du numéro de formation !
@@ -1123,7 +1185,7 @@ function theme_cataloforma_formation_view($variables){
           <label for='objectifs'>".t('objectifs')."</label>
         </td><!-- formation_label-->
         <td class='formation_value'>
-          <span id='objectifs'>".check_plain($formation->objectifs)."</span>
+          <span id='objectifs'>".$formation->objectifs."</span>
         </td><!--formation_value-->
       </tr><!--formation_field-->
     ";
@@ -1136,7 +1198,7 @@ function theme_cataloforma_formation_view($variables){
           <label for='deroulement'>".t('deroulement')."</label>
         </td><!-- formation_label-->
         <td class='formation_value'>
-          <span id='deroulement'>".check_plain($formation->deroulement)."</span>
+          <span id='deroulement'>".$formation->deroulement."</span>
         </td><!--formation_value-->
       </tr><!--formation_field-->
     ";
@@ -1162,7 +1224,7 @@ function theme_cataloforma_formation_view($variables){
           <label for='lieu'>".t('lieu')."</label>
         </td><!-- formation_label-->
         <td class='formation_value'>
-          <span id='lieu'>".check_plain($formation->lieu)."</span>
+          <span id='lieu'>".$formation->lieu."</span>
         </td><!--formation_value-->
       </tr><!--formation_field-->
     ";
@@ -1265,7 +1327,7 @@ function theme_cataloforma_formation_view($variables){
           <label for='remarques'>".t('remarques')."</label>
         </td><!-- formation_label-->
         <td class='formation_value'>
-          <span id='remarques'>".check_plain($formation->remarques)."</span>
+          <span id='remarques'>".$formation->remarques."</span>
         </td><!--formation_value-->
       </tr><!--formation_field-->
     ";
@@ -1297,13 +1359,14 @@ function theme_cataloforma_formation_view($variables){
 
     if($formation->id_modifby > 1) {
       $createur = user_load($formation->id_modifby);
+      $profile_createur = profile2_load_by_user($createur->uid,'main');
       $content .= "
         <tr class='formation_field'>
           <td class='formation_label'>
             <label for='modifby'>".t('modifie par')."</label>
           </td><!-- formation_label-->
           <td class='formation_value'>
-            <span id='modifby'>".($createur != NULL ? '('.$createur->name.') '.$createur->field_prenom.' '.$createur->field_nom : '')."</p>
+            <span id='modifby'>".($createur != NULL ? '('.$createur->name.') '.$profile_createur->field_prenom[LANGUAGE_NONE][0]['value'].' '.$profile_createur->field_nom[LANGUAGE_NONE][0]['value'] : '')."</p>
           </td><!--formation_value-->
         </tr><!--formation_field-->
       ";
@@ -2499,10 +2562,14 @@ function _cataloforma_formation_code_inscription_check($code, $date, $uid, $regi
 * @return le résultat de la condition 1 ou 0 ou NULL si erreur de syntaxe
 */
 function _cataloforma_formation_condition_evaluate($condition){
-  $result =@ db_query("SELECT ".$condition." LIMIT 1;");
-  if($result){
-    return $result->fetchField();
-  } else return NULL;
+  try {
+    $result = db_query("SELECT ".$condition." LIMIT 1");
+    if($result){
+      return $result->fetchField();
+    } else return NULL;
+  } catch(\PDOException $e){
+    return NULL;
+  } 
 }
 
 /**
