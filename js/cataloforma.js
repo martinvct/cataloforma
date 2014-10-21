@@ -1,13 +1,14 @@
 (function ($) { 
   const CATALOFORMA_PAGER_NBR = 25;
+  var loca = window.location;
+  loca = loca.pathname.substring(0, loca.pathname.indexOf('/',2) + 1);
 
   $(document).ready(function(){ 
 
-    var location = window.location;
-    location = location.pathname.substring(0, location.pathname.indexOf('/',2) + 1);
-
+    
     $('table.recherche_avancee').hide();
-    if($('#messageMail').length) {//Formulaire d'envoi de rappels
+    if($('#messageMail').length) {//Formulaire d'envoi de rappels--------------------------------------------RAPPELS
+      //alert("MAIL");
       $('#clearAttachment').hide();
       $('#attachmentMail').change(function(){
         $('#clearAttachment').show();
@@ -18,7 +19,7 @@
         $.ajax({
           type:"POST",
           async:false,
-          url: location+"ajax/inscrits/mail",
+          url: loca+"ajax/inscrits/mail",
           data: new FormData(document.forms.namedItem("publipostageForm")),
           //dataType: 'text',
           processData: false,
@@ -28,15 +29,16 @@
         });
       });
       $('#view_formation').click(function(){  
-        window.location = location+"formation/view/"+$('#id_formation').val(); 
+        window.location = loca+"formation/view/"+$('#id_formation').val(); 
       });
       $('#clearAttachment').click(function(){
         $('#attachmentMail').wrap('<form>').parent('form').trigger('reset');
         $('#attachmentMail').unwrap();
         $('#clearAttachment').hide();
       });
-    }
-    else if($('#pdf').length){//Formulaire d'édition de formation
+    }//-----------------------------------------------------------------------------------------------------RAPPELS
+    else if($('#pdf').length){//Formulaire d'édition de formation-------------------------------------------FORMATION
+      //alert("EDITFORM");
       $('#pdf').change(function(){
         $('#clearPdf').show();
       });
@@ -46,7 +48,7 @@
         $('#clearPdf').hide();
       });
        $('#new_intervenant').autocomplete({
-        serviceUrl: location+"ajax/user/search",
+        serviceUrl: loca+"ajax/user/search",
         dataType: 'json',
         minChars: 4,
         onSelect: function(suggestion){ $('#new_intervenant').val(suggestion.data); }
@@ -55,7 +57,7 @@
         $.ajax({
           type:"POST",
           async:false,
-          url: location+"ajax/user/name",
+          url: loca+"ajax/user/name",
           data: "new_intervenant="+$('#new_intervenant').val(),
           dataType: 'json',
           success: addIntervenant,
@@ -74,7 +76,7 @@
         $.ajax({
           type:"POST",
           async:false,
-          url: location+"ajax/formation/upd",
+          url: loca+"ajax/formation/upd",
           data: data,
           //dataType: 'text',
           processData: false,
@@ -85,18 +87,19 @@
       });
       $('#view_formation').click(function(){
         if($('#id_formation').val() > 0){
-          window.location = location+"formation/view/"+$('#id_formation').val(); 
+          window.location = loca+"formation/view/"+$('#id_formation').val(); 
         } else if ($('#id_clone').val() > 0) {
-          window.location = location+"formation/view/"+$('#id_clone').val(); 
+          window.location = loca+"formation/view/"+$('#id_clone').val(); 
         } else {
-          window.location = location+"formations";
+          window.location = loca+"formations";
         } 
       });
-    }
-    else if($('#liste_inscrits').length) {//Formulaire de gestion des inscrits d'une formation
+    }//-----------------------------------------------------------------------------------------------------FORMATION
+    else if($('#liste_inscrits').length) {//Formulaire de gestion des inscrits d'une formation--------------INSCRITS
+      //alert("INSCRITS");
       initInscrits();
       $('#new_inscrit').autocomplete({
-        serviceUrl: location+"ajax/user/search",
+        serviceUrl: loca+"ajax/user/search",
         dataType: 'json',
         minChars: 4,
         onSelect: function(suggestion){ $('#new_inscrit').val(suggestion.data); }
@@ -118,7 +121,7 @@
         $.ajax({
           type:"POST",
           async:false,
-          url: location+"ajax/inscrit/add",
+          url: loca+"ajax/inscrit/add",
           data: dataString,
           dataType: 'text',
           success: function(message){ messageInscrits(message); getInscrits(); },
@@ -131,7 +134,7 @@
         $.ajax({
           type:"POST",
           async:false,
-          url: location+"ajax/inscrits/del",
+          url: loca+"ajax/inscrits/del",
           data: dataString,
           dataType: 'text',
           success: function(message){ messageInscrits(message); getInscrits(); },
@@ -140,24 +143,24 @@
       });
 
       $('#mail_inscrits').click(function(){ 
-        $('#inscritsForm').attr('action', location+'formation/publipostage');
+        $('#inscritsForm').attr('action', loca+'formation/publipostage');
         $('#inscritsForm').submit();
       });
 
       $('#csv_inscrits').click(function(){
-        window.location = location+"ajax/inscrits/csv?id_formation="+$('#id_formation').val();
+        window.location = loca+"ajax/inscrits/csv?id_formation="+$('#id_formation').val();
       });
 
       $('#csv_presences').click(function(){
-        window.location = location+"ajax/presences/csv?id_formation="+$('#id_formation').val();
+        window.location = loca+"ajax/presences/csv?id_formation="+$('#id_formation').val();
       });
 
       $('#edit_formation').click(function(){
-        window.location = location+"formation/edit/"+$('#id_formation').val();
+        window.location = loca+"formation/edit/"+$('#id_formation').val();
       });
 
       $('#clone_formation').click(function(){
-        window.location = location+"formation/edit/"+$('#id_formation').val()+"?clone=true";
+        window.location = loca+"formation/edit/"+$('#id_formation').val()+"?clone=true";
       });
 
       $('#del_formation').click(function(){
@@ -171,10 +174,49 @@
         });
       });
 
-    }
-    else if ($('#formationsForm').length) { // formulaire de recherche de formations
+    }//----------------------------------------------------------------------------------------------------INSCRITS
+    else if ($('#inscrit').length) { // fiche d'un inscrit-------------------------------------------------INSCRIT
+      $('#progcours').show();
+      $('#prog_onglet').addClass('actif');
+      $('#histo').hide();
+      $('#ecampuscours').hide();
+
+      $('#prog_onglet').click(function(){
+        $('#prog_onglet').addClass('actif');
+        $('#histo_onglet').removeClass('actif');
+        $('#ecampus_onglet').removeClass('actif');
+        $('#progcours').show();
+        $('#histo').hide();
+        $('#ecampuscours').hide();
+      });
+      $('#histo_onglet').click(function(){
+        $('#histo_onglet').addClass('actif');
+        $('#prog_onglet').removeClass('actif');
+        $('#ecampus_onglet').removeClass('actif');
+        $('#histo').show();
+        $('#progcours').hide();
+        $('#ecampuscours').hide();
+      });
+      $('#ecampus_onglet').click(function(){
+        $('#ecampus_onglet').addClass('actif');
+        $('#histo_onglet').removeClass('actif');
+        $('#prog_onglet').removeClass('actif');
+        $('#ecampuscours').show();
+        $('#histo').hide();
+        $('#progcours').hide();
+      });
+      getProgCours();
+      getEcampusCours();
+      $('#annee_acad').change(function(){
+        getProgCours();
+      });
+
+
+    }//----------------------------------------------------------------------------------------------------INSCRIT
+    else if ($('#formationsForm').length) { // formulaire de recherche de formations-----------------------RECHERCHE
+      //alert("SEARCH");
       $('#new_inscrit').autocomplete({
-        serviceUrl: location+"ajax/user/search",
+        serviceUrl: loca+"ajax/user/search",
         dataType: 'json',
         minChars: 4,
         onSelect: function(suggestion){ $('#new_inscrit').val(suggestion.data); }
@@ -185,7 +227,7 @@
         $.ajax({
           type:"POST",
           async:false,
-          url: location+"ajax/inscrit/add",
+          url: loca+"ajax/inscrit/add",
           data: dataString,
           dataType: 'text',
           success: function(message){ messageFormations(message); },
@@ -228,7 +270,7 @@
         $.ajax({
           type:"POST",
           async:false,
-          url: location+"ajax/formations/publish",
+          url: loca+"ajax/formations/publish",
           data: dataString,
           dataType: 'text',
           success: refreshFormations,
@@ -241,7 +283,7 @@
         $.ajax({
           type:"POST",
           async:false,
-          url: location+"ajax/formations/unpublish",
+          url: loca+"ajax/formations/unpublish",
           data: dataString,
           dataType: 'text',
           success: refreshFormations,
@@ -250,7 +292,7 @@
       });
 
       $('#add_formation').click(function(){
-        window.location = location+"formation/edit/0";
+        window.location = loca+"formation/edit/0";
       });
 
       $('#formations_clrsearch_button').click(function(){
@@ -268,7 +310,7 @@
         getFormations();
       });
 
-    }
+    }//-------------------------------------------------------------------------------------------------------RECHERCHE
 
     if($.fn.ckeditor !== undefined){
       $('textarea.editor').ckeditor(function(){ }, { toolbar_Basic : [  { name: 'document', items : ['Bold', 'Italic', 'Underline', '-', 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'link', 'Unlink', 'Image', '-', 'PasteFromWord' ] } ] , toolbar : 'Basic' } );
@@ -296,7 +338,7 @@
     $.ajax({
       type:"POST",
       async:false,
-      url: location+"ajax/inscrits/upd",
+      url: loca+"ajax/inscrits/upd",
       data: dataString,
       dataType: 'text',
       success: messageInscrits,
@@ -306,7 +348,7 @@
 
   function getInscrits(colonne){
     var sortBy = $.parseJSON($('#sort_inscrits').val());
-    if(colonne.length){
+    if(typeof colonne !== "undefined"){
       if(sortBy.col == colonne){
         if(sortBy.by == "ASC") {
           sortBy.by = "DESC";
@@ -317,7 +359,7 @@
         sortBy.col = colonne;
         sortBy.by  = "ASC";
       }
-    }  
+    } 
     $('#sort_inscrits').val(JSON.stringify(sortBy));
     
     var dataString = $('#inscritsForm').serialize();
@@ -325,7 +367,7 @@
     $.ajax({
       type:"POST",
       async:false,
-      url: location+"ajax/inscrits",
+      url: loca+"ajax/inscrits",
       data: dataString,
       dataType: 'text',
       success: refreshInscrits,
@@ -440,7 +482,7 @@
     $.ajax({
       type:"POST",
       async:false,
-      url: location+"ajax/formations",
+      url: loca+"ajax/formations",
       data: dataString,
       dataType: 'text',
       success: refreshFormations,
@@ -453,7 +495,7 @@
     $.ajax({
       type:"POST",
       async:false,
-      url: location+"ajax/inscrits/upd",
+      url: loca+"ajax/inscrits/upd",
       data: dataString,
       dataType: 'text',
       success: messageInscrits,
@@ -466,6 +508,44 @@
     initFormations();
   };
 
+  function getEcampusCours(){
+    $.ajax({
+      type:"GET",
+      async:false,
+      url:"http://www.ecampus.ulg.ac.be/webapps/IFRS-IFRES_Admin-BBLEARN/ecampuscours.do",
+      data: "uid="+$('#inscrit_id').val(),
+      dataType: 'json',
+      success: function(data){
+        var ecampus = "";
+        for(var c=0; c < data.ecampus.length; c++){
+          var cours = data.ecampus[c];
+          ecampus += "<tr><td><a target='_blank' href='https://www.intranet.ulg.ac.be/cgi/ecampus_login.pl?pid="+cours.bbcid+"'>"+cours.bbcid+"</a></td><td>"+cours.intitule+"</td><td>"+cours.role+"</td><td>"+cours.section+"</td><td>"+cours.pid+"</td></tr>";
+        }
+        $('#ecampuscours > table').append(ecampus);
+      },
+      error: alertError
+    });
+  };
+
+  function getProgCours(){
+    $.ajax({
+      type:"GET",
+      async:false,
+      url:"http://www.ecampus.ulg.ac.be/webapps/IFRS-IFRES_Admin-BBLEARN/progcours.do",
+      data: "uid="+$('#inscrit_id').val()+"&annee="+$('#annee_acad').val(),
+      dataType: 'json',
+      success: function(data){
+        var progcours = "";
+        for(var c=0; c < data.progcours.length; c++){
+          var cours = data.progcours[c];
+          progcours += "<tr class='progcours'><td>"+cours.pid+"</td><td>"+cours.intitule+"</td><td>"+cours.role+"</td><td>"+cours.section+"</td><td><a target='_blank' href='https://www.intranet.ulg.ac.be/cgi/ecampus_login.pl?pid="+cours.bbcid+"'>"+cours.bbcid+"</a></td></tr>";
+        }
+        $('tr.progcours').remove();
+        $('#progcours > table').append(progcours);
+      },
+      error: alertError
+    });
+  };
 
   function messageFormations(message){
     $('#messageFormations').html(message);
