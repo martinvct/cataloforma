@@ -95,7 +95,7 @@
         } 
       });
     }//-----------------------------------------------------------------------------------------------------FORMATION
-    else if($('#liste_inscrits').length) {//Formulaire de gestion des inscrits d'une formation--------------INSCRITS
+    else if($('#inscrits').length) {//Formulaire de gestion des inscrits d'une formation--------------------INSCRITS
       //alert("INSCRITS");
       initInscrits();
       $('#new_inscrit').autocomplete({
@@ -138,6 +138,32 @@
           data: dataString,
           dataType: 'text',
           success: function(message){ messageInscrits(message); getInscrits(); },
+          error: alertError
+        });
+      });
+
+       $('#add_minscrit').click(function(){
+        var dataString = $('#inscritsForm').serialize();
+        $.ajax({
+          type:"POST",
+          async:false,
+          url: loca+"ajax/inscrit/add",
+          data: dataString,
+          dataType: 'text',
+          success: function(message){ location.reload(); },
+          error: alertError
+        });
+      });
+
+      $('#del_minscrit').click(function(){
+        var dataString = $('#inscritsForm').serialize();
+        $.ajax({
+          type:"POST",
+          async:false,
+          url: loca+"ajax/inscrits/del",
+          data: dataString,
+          dataType: 'text',
+          success: function(message){ location.reload(); },
           error: alertError
         });
       });

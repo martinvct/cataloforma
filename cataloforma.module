@@ -29,7 +29,6 @@ define("CATALOFORMA_ACCESS_ADMIN", "A");
 
 /******************
 TODO :
-  - mettre en place contrôle d'accès des pages et des appels AJAX
   - ajouter la synchronisation des inscriptions dans ecampus
 ****************/
 
@@ -65,12 +64,15 @@ function cataloforma_init() {
 
 function cataloforma_user_access($access_level, $id=0){
   global $user;
-  if($user == null) return false;
+  if(!user_is_logged_in()) return false;
+
   switch($access_level){
     case CATALOFORMA_ACCESS_USER :
+      if(is_object($id)) $id = $id->uid;
       if(($user->uid == $id) || (user_access(CATALOFORMA_PERM_ADMIN))) return true;
       break;
     case CATALOFORMA_ACCESS_INTER : 
+      if(is_object($id)) $id = $id->id;
       if(_cataloforma_bd_isIntervenant($id) || (user_access(CATALOFORMA_PERM_ADMIN))) return true;
       break; 
     case CATALOFORMA_ACCESS_ADMIN :
@@ -268,6 +270,7 @@ function cataloforma_menu(){
 * @see cataloforma_get_formation
 */
 function cataloforma_formationid_load($id_formation = 0){
+
   return _cataloforma_bd_formation_loadbyid($id_formation);
 }
 
@@ -529,6 +532,7 @@ function cataloforma_formationedit_page($formation = null){
   }
   $output = theme('cataloforma_formation_edit', array('formation' => $formation, 'clone' => $clone));
   return $output;
+  
 }
 
 function cataloforma_ics_page(){
@@ -658,15 +662,17 @@ function cataloforma_ajax_inscrits_upd_page(){
 }
 
 function cataloforma_ajax_inscrits_del_page(){
+  global $user;
   if (!empty($_POST['id_formation'])) {
     $id_formation = $_POST['id_formation'];
 
     $inscritUids  = $_POST['inscrits'];
+    if(!empty($_POST['self'])) $inscritUids = array($user->uid); 
 
     $output = "
     <div class='message_confirmation'>";
     foreach($inscritUids as $uid){
-       if(!cataloforma_user_access(CATALOFORMA_ACCESS_INTER, $id_formation) && (!cataloforma_user_access(CATALOFORMA_ACCESS_USER, $uid))) continue;
+       if(!cataloforma_user_access(CATALOFORMA_ACCESS_INTER, $id_formation) && (!cataloforma_user_access(CATALOFORMA_ACCESS_USER, $uid)))  continue;
        _cataloforma_bd_inscrit_updAnnule($uid, $id_formation, 1);
        $output .= t('@login desinscrit', array('@login' => _cataloforma_bd_user_getLogin($uid)));
        cataloforma_alert_inscription($id_formation, $uid, 'delete');
@@ -679,6 +685,7 @@ function cataloforma_ajax_inscrits_del_page(){
 }
 
 function cataloforma_ajax_inscrit_add_page(){
+  global $user;
   if (!empty($_POST['new_inscrit'])){
     if (!empty($_POST['id_formation'])) { 
       $ids_formations = array(); 
@@ -706,16 +713,38 @@ function cataloforma_ajax_inscrit_add_page(){
         case 0 :
           _cataloforma_bd_inscrit_updAnnule($new_inscrit->uid, $id_formation, 0);
           print "<div class='message_confirmation'>".t('@login inscrit a @formation', array('@login' => $new_inscrit->name, '@formation' => $formation->intitule))."</div>";
-          //cataloforma_alert_inscription($id_formation, $new_inscrit->uid, 'add');
+          cataloforma_alert_inscription($id_formation, $new_inscrit->uid, 'add');
           break;
         case -1 :
           _cataloforma_bd_formation_addInscrit($id_formation, $new_inscrit->uid);
           print "<div class='message_confirmation'>".t('@login inscrit a @formation', array('@login' => $new_inscrit->name, '@formation' => $formation->intitule))."</div>";
-          //cataloforma_alert_inscription($id_formation, $new_inscrit->uid, 'add');
+          cataloforma_alert_inscription($id_formation, $new_inscrit->uid, 'add');
           break;  
       }
     }  
     exit;
+  } else if(!empty($_POST['self'])){
+    if (!empty($_POST['id_formation'])) { 
+      $id_formation = $_POST['id_formation'];
+      $formation = _cataloforma_bd_formation_loadbyid($id_formation);
+      if(!cataloforma_user_access(CATALOFORMA_ACCESS_INTER, $id_formation) && (!cataloforma_user_access(CATALOFORMA_ACCESS_USER, $user->uid)) && (!_cataloforma_formation_prerequis_evaluate($formation->id, $user->uid, 1))) continue;
+      //verifier si pas déja inscrit
+      switch(_cataloforma_bd_checkInscrit($id_formation, $user->uid)){
+        case 1:
+          print "<div class='message_alerte'>".t('@login deja inscrit a @formation', array('@login' => $user->name, '@formation' => $formation->intitule))."</div>";
+          break;
+        case 0 :
+          _cataloforma_bd_inscrit_updAnnule($user->uid, $id_formation, 0);
+          print "<div class='message_confirmation'>".t('@login inscrit a @formation', array('@login' => $user->name, '@formation' => $formation->intitule))."</div>";
+          cataloforma_alert_inscription($id_formation, $user->uid, 'add');
+          break;
+        case -1 :
+          _cataloforma_bd_formation_addInscrit($id_formation, $user->uid);
+          print "<div class='message_confirmation'>".t('@login inscrit a @formation', array('@login' => $user->name, '@formation' => $formation->intitule))."</div>";
+          cataloforma_alert_inscription($id_formation, $user->uid, 'add');
+          break;  
+      }
+    }
   }
 }
 
@@ -1413,6 +1442,7 @@ function theme_cataloforma_formation_view($variables){
     }
   }
 
+
   $content .="
     </table>
     </div><!--formation-->";
@@ -1445,6 +1475,39 @@ function theme_cataloforma_formation_view($variables){
       <input type='button' id='csv_presences' name='csv_presences' value='".t('telecharger presences')."'/>
       <input type='button' id='upd_inscrits' name='upd_inscrits' value='".t('mettre a jour')."'/>
       <input type='button' id='add_inscrit' name='add_inscrit' value='".t('nouvelle inscription')."'/><input type='text' id='new_inscrit' name='new_inscrit' value=''/>
+    </div>
+    </form>
+  </div>"; 
+  } else {
+    $content .= "
+  <div id='inscrits'>
+    <form id='inscritsForm' method='post' name='inscritsForm'>
+    <input type='hidden' name='self' value='1'/>
+    <div class='toolbar'>
+      <input type='hidden' id='id_formation' name='id_formation' value='".$formation->id."'/>
+    ";
+
+    if(_cataloforma_formation_prerequis_evaluate($formation->id, $user->uid, 1)){
+      if(_cataloforma_bd_checkInscrit($formation->id, $user->uid) < 1){
+        if(($formation->date_debut > REQUEST_TIME) && (($formation->date_limite == 0) || ($formation->date_limite > REQUEST_TIME))){
+          if(($formation->places == 0) || ($formation->places > $formation->nbr_inscrits)){
+            $content .= "<input type='button' id='add_minscrit' name='add_minscrit' value='".t('minscrire')."'/>";
+          } else {
+            //$content .= "<p>".t('plus de place disponible')."</p>";
+          }
+        } else {
+          //$content .= "<p>".t('date d\'inscription dépassée')."</p>";
+        }
+      } else {
+        if($formation->date_debut > REQUEST_TIME){
+          $content .= "<input type='button' id='del_minscrit' name='del_minscrit' value='".t('medesinscrire')."'/>";
+        }  
+      }
+    } else {
+      //$content .= "<p>".t('vous ne respectez pas les prérequis de la formation')."</p>";
+    }
+
+    $content .= "
     </div>
     </form>
   </div>"; 
@@ -2141,7 +2204,7 @@ function theme_cataloforma_inscrit($variables){
             <select id='annee_acad' name='annee_acad'>
              ";
   $isFirst = true;
-  $annees = _cataloforma_bd_get_AllAcads();
+  $annees = _cataloforma_bd_get_AllAcads(false);
   foreach($annees as $annee){
     $content .= "<option value='".$annee."' ".($isFirst ? "selected" : "").">".$annee."-".($annee+1)."</option>";
     $isFirst = false;
@@ -2758,8 +2821,10 @@ function _cataloforma_formation_getType($id_type){
   return db_query("SELECT intitule FROM {tbl_formation_types} WHERE id = :id_type;", array(':id_type' => $id_type))->fetchField();
 }
 
-function _cataloforma_bd_get_AllAcads(){
-  $annee_min = _cataloforma_get_acad(db_query("SELECT MIN(date_debut) FROM {tbl_formations};")->fetchField());
+function _cataloforma_bd_get_AllAcads($all=true){
+  if($all){
+    $annee_min = _cataloforma_get_acad(db_query("SELECT MIN(date_debut) FROM {tbl_formations};")->fetchField());
+  } else $annee_min = 2010;  
   $annee_max = _cataloforma_get_acad(REQUEST_TIME);
   $annees = array();
   for ($a = $annee_max; $a >= $annee_min; $a--) {
@@ -2770,11 +2835,11 @@ function _cataloforma_bd_get_AllAcads(){
 
 function _cataloforma_bd_isIntervenant($id_formation){
   global $user;
-  if($user == null) return false;
-  $result = db_query("SELECT intervenants_names FROM {tbl_formations} f, {users} u WHERE u.uid = :uid AND f.id = :id_formation AND f.intervenants_names LIKE CONCAT('%',u.name,'%';", array(':uid' => $user->uid, ':id_formation' => $id_formation));
+  if(!user_is_logged_in() ) return false;
+  $result = db_query("SELECT intervenants_names FROM {tbl_formations} f WHERE f.id = :id_formation AND f.intervenants_names LIKE :name ;", array(':name' => $user->name, ':id_formation' => $id_formation));
   foreach($result as $intervs){
     $ints =  explode(",",$intervs);
-    retun in_array($user->name, $ints);
+    return in_array($user->name, $ints);
   }
   return false;
 }
@@ -2861,7 +2926,7 @@ function cataloforma_alert_inscription($id_formation, $uid, $op = 'add'){
   else $from = CATALOFORMA_DEFAULT_MAIL;
 
   $to   = $student->mail;
-  $cc   = _cataloforma_formation_get_contact_mails($formation);
+  //TODO : $cc   = _cataloforma_formation_get_contact_mails($formation);
   $arguments = array(
     '@code'        => $formation->code,
     '@title'       => $formation->intitule,
