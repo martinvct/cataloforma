@@ -47,7 +47,15 @@
         $('#pdf').unwrap();
         $('#clearPdf').hide();
       });
-       $('#new_intervenant').autocomplete({
+
+      $('#new_ecampus').autocomplete({
+        serviceUrl: "http://www.ecampus.ulg.ac.be/webapps/IFRS-IFRES_Admin-BBLEARN/getcours.do",
+        dataType: 'json',
+        minChars: 7,
+        onSelect: function(suggestion){ $('#new_ecampus').val(suggestion.data); }
+      });
+
+      $('#new_intervenant').autocomplete({
         serviceUrl: loca+"ajax/user/search",
         dataType: 'json',
         minChars: 4,
@@ -64,9 +72,26 @@
           error: alertError
         });
       });
+
+      $('#add_ecampus').click(function(){
+        $.ajax({
+          type:"POST",
+          async:false,
+          url: "http://www.ecampus.ulg.ac.be/webapps/IFRS-IFRES_Admin-BBLEARN/getcours.do",
+          data: "pid="+$('#new_ecampus').val(),
+          dataType: 'json',
+          success: addEcampus,
+          error: alertError
+        });
+      });
+
       $('div.remIntervenant').click(function(){
           remIntervenant($(this).parent().attr('id'));
       });
+      $('div.remEcampus').click(function(){
+          remEcampus($(this).parent().prev().children(":first-child").attr('id'));
+      });
+
       $('#upd_formation').click(function(){
         var data = new FormData(document.forms.namedItem("formationForm"));
         data.append('ck_objectifs', CKEDITOR.instances.objectifs.getData());
@@ -431,6 +456,22 @@
     cleanIntervenants();
   }
 
+  function addEcampus(ecampus){
+    var code = ecampus.data;
+    var tmp = "";
+    if(code.length > 0){//cours existant sur ecampus
+      if($('#codesecampus').val().search(code) == -1){//cours pas encore lie a  la formation
+        tmp = $('#codesecampus').val().concat(code,",");
+        $('#codesecampus').val(tmp);
+        
+        $('#liste_ecampus').append("<tr id='ligne_"+code+"'><td>"+code+"</td><td>"+ecampus.value+"</td><td><input type='text' name='"+code+"' id='"+code+"' value=''/><input type='hidden' name='"+code+"' id='"+code+"' value='"+ecampus.value+"' /></td><td><div class='remEcampus'></div></td></tr>");
+        $('div.remEcampus').click(function(){
+          remEcampus($(this).parent().prev().children(":first-child").attr('id'));
+        });
+      }  
+    }
+  }
+
   function remIntervenant(intervenant){
     var inter = intervenant.split(",");
     var tmp;
@@ -449,6 +490,17 @@
     cleanIntervenants();
   }
 
+  function remEcampus(code){
+    var tmp;
+
+    tmp = $('#codesecampus').val().replace(','+code+',' , ',');
+
+    $('#codesecampus').val(tmp);
+    
+    $('li').filter('[id="ligne_'+code+'"]').remove();
+    cleanEcampus();
+  }
+
   function cleanIntervenants(){
     var tmp = $('#intervenants_names').val();
     tmp = tmp.replace(",,",",");
@@ -461,6 +513,14 @@
     if(tmp.charAt(0) == ",") tmp = tmp.substr(1);
     if(tmp.charAt(tmp.length-1) == ",") tmp = tmp.substr(0, tmp.length-1);
     $('#intervenants').val(tmp);
+  }
+
+  function cleanEcampuss(){
+    var tmp = $('#codesecampus').val();
+    tmp = tmp.replace(",,",",");
+    if(tmp.charAt(0) == ",") tmp = tmp.substr(1);
+    if(tmp.charAt(tmp.length-1) == ",") tmp = tmp.substr(0, tmp.length-1);
+    $('#codesecampus').val(tmp);
   }
 
   function initFormations(){

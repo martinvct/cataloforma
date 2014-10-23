@@ -59,7 +59,23 @@ function cataloforma_permission(){
 }  
 
 function cataloforma_init() {
+  //drupal_add_http_header("Access-Control-Allow-Origin","http://www.ifres.ulg.ac.be");
 
+    $method = $_SERVER['REQUEST_METHOD'];
+  if (isset($_SERVER['HTTP_ORIGIN'])) {
+    drupal_add_http_header('Access-Control-Allow-Origin', $_SERVER['HTTP_ORIGIN']);
+  }
+  if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS'])) {
+    drupal_add_http_header('Access-Control-Allow-Headers', $_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']);
+  }
+  if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD'])) {
+    drupal_add_http_header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  }
+  if ($method == 'OPTIONS') {
+    exit;
+  }
+
+  drupal_add_http_header('Access-Control-Allow-Origin', '*');
 }
 
 function cataloforma_user_access($access_level, $id=0){
@@ -716,7 +732,8 @@ function cataloforma_ajax_inscrit_add_page(){
           cataloforma_alert_inscription($id_formation, $new_inscrit->uid, 'add');
           break;
         case -1 :
-          _cataloforma_bd_formation_addInscrit($id_formation, $new_inscrit->uid);
+          _cataloforma_bd_getLcms($id_formation, $new_inscrit->uid);
+          _cataloforma_setInscriptionToLcmsForUser($formation, $new_inscrit->uid);
           print "<div class='message_confirmation'>".t('@login inscrit a @formation', array('@login' => $new_inscrit->name, '@formation' => $formation->intitule))."</div>";
           cataloforma_alert_inscription($id_formation, $new_inscrit->uid, 'add');
           break;  
@@ -740,6 +757,7 @@ function cataloforma_ajax_inscrit_add_page(){
           break;
         case -1 :
           _cataloforma_bd_formation_addInscrit($id_formation, $user->uid);
+          _cataloforma_setInscriptionToLcmsForUser($formation, $new_inscrit->uid);
           print "<div class='message_confirmation'>".t('@login inscrit a @formation', array('@login' => $user->name, '@formation' => $formation->intitule))."</div>";
           cataloforma_alert_inscription($id_formation, $user->uid, 'add');
           break;  
@@ -1016,6 +1034,36 @@ function cataloforma_ajax_formation_upd_page(){
         drupal_write_record('tbl_formations', $formation, 'id');
       }
     }
+  
+    $ecampusstr   = $_POST['codesecampus'];
+    $ecampuss     = explode(",", $ecampusstr);
+    $intitulesstr = $_POST['intitules'];
+    $intituless   = explode("||", $intitulesstr);
+
+    $oldecampuss = _cataloforma_bd_getLcms($formation->id);
+    foreach($oldecampuss as $oldecampus){
+      if(!in_array($oldecampus->code, $ecampuss)) {
+        _cataloforma_delInscriptionToLcms($formation->id, null, $oldcampus->code);
+        _cataloforma_bd_delLcms($formation->id, $oldcampus->code);
+      }  
+    }
+
+    if(count($ecampuss) > 0){
+      for($e = 0; $e < count($ecampuss);$e++){
+        $ecampus        = $ecampuss[$e];
+        $intitulecampus = $intituless[$e]; 
+        if(!in_array($ecampus->code, $oldecampuss)) {
+          _cataloforma_setInscriptionToLcmsForCode($formation->id, $ecampus->code);
+          $lcms = new stdClass();
+          $lcms->id_formation = $formation->id;
+          $lcms->code_cours   = $ecampus->code;
+          $lcms->intitule     = check_plain($intitulecampus);
+          $lcms->date_inscription  = (isset($_POST[$ecampus->code]) ? $_POST[$ecampus->code] : REQUEST_TIME);
+          drupal_write_record('tbl_formation_lcms', $lcms);
+        }
+      }
+    }
+
   } 
   exit;
 }
@@ -1268,6 +1316,24 @@ function theme_cataloforma_formation_view($variables){
         </td><!-- formation_label-->
         <td class='formation_value'>
           <span id='deroulement'>".$formation->deroulement."</span>
+        </td><!--formation_value-->
+      </tr><!--formation_field-->
+    ";
+  }
+
+  $ecampuss = _cataloforma_bd_getLcms($formation->id);
+  if(count($ecampuss) > 0){
+    $content .= "
+      <tr class='formation_field'>
+        <td class='formation_label'>
+          <label for='ecampus'>".t('cours ecampus')."</label>
+        </td><!-- formation_label-->
+        <td class='formation_value'>
+          <ul id='ecampus'>";
+    foreach($ecampuss as $ecampus){
+      $content .= "<li>(".$ecampus->code.") ".check_plain($ecampus->intitule)."</li>";
+    }
+    $content .= "</ul>
         </td><!--formation_value-->
       </tr><!--formation_field-->
     ";
@@ -1616,6 +1682,40 @@ function theme_cataloforma_formation_edit($variables){
       </td><!--formation_value-->
     </tr><!--formation_field-->
   ";
+
+
+  $content .= "
+      <tr class='formation_field'>
+        <td class='formation_label'>
+          <label for='ecampus'>".t('cours ecampus')."</label>
+        </td><!-- formation_label-->
+        <td class='formation_value'>
+          <table id='liste_ecampus'>"; 
+
+    if(isset($formation)){
+      $ecampuss = _cataloforma_bd_getLcms($formation->id);
+    }  else $ecampuss = array();
+    $ecampusstr = array();  
+    $intitulesstr = array();
+    foreach($ecampuss as $ecampus){
+      $ecampusstr[] = $ecampus->code;
+      $content .= "
+            <tr id='ligne_".$ecampus->code."'>
+              <td>".check_plain($ecampus->code)."</td>
+              <td>".check_plain($ecampus->intitule)."</td>
+              <td><input type='text' name='".$ecampus->code."' id='".$ecampus->code."' value='".date(CATALOFORMA_FORMAT_DATE, $ecampus->date_inscription)."'/>
+                  <input type='hidden' name='title_".$ecampus->code."' id='title_".$ecampus->code."' value='".check_plain($ecampus->intitule)."' /></td>
+              <td><div class='remEcampus'></div></td>
+            </tr>";
+    }
+    $content .= "
+          </table>
+          <input type='button' id='add_ecampus' name='add_ecampus' value='".t('ajout cours ecampus')."'/><input type='text' id='new_ecampus' name='new_ecampus' value=''/>
+          ".'<input type="hidden" id="codesecampus" name="codesecampus" value=",'.(count($ecampusstr) > 0 ? implode(",", $ecampusstr) : "").',"/>'."
+        </td><!--formation_value-->
+      </tr><!--formation_field-->
+    ";
+
   
   $content .= "
     <tr class='formation_field'>
@@ -2844,6 +2944,19 @@ function _cataloforma_bd_isIntervenant($id_formation){
   return false;
 }
 
+function _cataloforma_bd_getLcms($id_formation){
+    return db_query("SELECT code_cours as code, intitule, date_inscription, date_fin_inscription FROM {tbl_formation_lcms} WHERE id_formation = :id_formation ORDER BY code_cours;", array(':id_formation' => $id_formation));
+}
+
+function _cataloforma_bd_delLcms($id_formation, $code){
+  db_query("DELETE FROM {tbl_formation_lcms} WHERE id_formation = :id_formation AND code_cours = :code;", array(':id_formation' => $id_formation, ':code' => $code));
+}
+
+function _cataloforma_bd_getInscriptionsToLcms(){
+  $time = REQUEST_TIME;
+  return db_query("SELECT f.id, i.uid, e.code_cours as code FROM {tbl_formations} f, {tbl_formation_inscrits} i, {tbl_formation_lcms} e, {tbl_formation_lcms_logs} l WHERE f.date_fin > :time AND f.id = e.id_formation AND e.date_inscription < :time AND f.id = i.id_formation AND i.is_annule = 0 AND i.uid = l.uid AND f.id = l.id_formation AND e.code_cours = l.code_cours AND l.estLCMS = 0;", array(":time" => $time));
+}
+
 /************************************************************************************
 *************************************************************************************   *****     *   *  ***   *  *      ****
 ***                                                                               ***   *         ** ** *   *     *     *
@@ -3328,6 +3441,44 @@ function _cataloforma_cookie_recherche_load(){
 
 function _cataloforma_cookie_recherche_clean(){
   setcookie("cataloforma_recherche", serialize(array()), (REQUEST_TIME - 3600));
+}
+
+function _cataloforma_setInscriptionToLcmsForUser($id_formation, $uid){
+  $ecampuss = _cataloforma_bd_getLcms($id_formation);
+  foreach($ecampuss as $ecampus){
+    $inscription = new stdClass();
+    $inscription->id_formation = $id_formation;
+    $inscription->code_cours   = $ecampus->code;
+    $inscription->uid          = $uid;
+    $inscription->estLCMS      = 0;
+    $inscription->timestamp    = 0;
+    drupal_write_record('tbl_formation_lcms_logs', $inscription);
+  }
+}
+
+function _cataloforma_setInscriptionToLcmsForCode($id_formation, $code){
+  $inscrits = _cataloforma_bd_formation_getInscritUids($id_formation);
+  foreach($inscrits as $inscrit){
+    $inscription = new stdClass();
+    $inscription->id_formation = $id_formation;
+    $inscription->code_cours   = $code;
+    $inscription->uid          = $inscrit->uid;
+    $inscription->estLCMS      = 0;
+    $inscription->timestamp    = 0;
+    drupal_write_record('tbl_formation_lcms_logs', $inscription);
+  }
+}
+
+function _cataloforma_delInscriptionToLcms($id_formation, $uid = null, $code = null){
+  if($code != null) {
+    db_query("DELETE FROM {tbl_formation_lcms_logs} WHERE id_formation = :id_formation AND uid = :uid AND code := code ;", array(':id_formation' => $id_formation, 'uid' => $uid, 'code_cours' => $code));
+  } else {
+    if($uid != null){
+      db_query("DELETE FROM {tbl_formation_lcms_logs} WHERE id_formation = :id_formation AND uid = :uid ;", array(':id_formation' => $id_formation, 'uid' => $uid));
+    } else {
+      db_query("DELETE FROM {tbl_formation_lcms_logs} WHERE id_formation = :id_formation ;", array(':id_formation' => $id_formation));
+    }
+  }  
 }
 
 function _cataloforma_old_ifres_transfert(){

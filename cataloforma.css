@@ -48,6 +48,7 @@ th.thSortable { cursor: pointer; }
 .message_confirmation { display: block; border: 1px solid green; background: #22AA22; color: #00FF00; }
 
 .remIntervenant { display: inline-block; width: 16px; height: 16px; background-image:url('images/suppression_16.png'); background-repeat:none; }
+.remEcampus { display: inline-block; width: 16px; height: 16px; background-image:url('images/suppression_16.png'); background-repeat:none; }
 
 legend.open { padding-left: 15px; background: url('images/menu-expanded.png') 5px 75% no-repeat; }
 legend.closed { padding-left: 15px; background: url('images/menu-collapsed.png') 5px 75% no-repeat; }
