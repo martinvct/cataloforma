@@ -55,17 +55,53 @@ legend.closed { padding-left: 15px; background: url('images/menu-collapsed.png')
 
 div.formations_toolbar { width: 900px; margin: 10px auto; }
 div.formations_search{ display: inline-block; margin: 5px auto; }
-
+div.formations_search #pattern { border: 1px dotted #0e6767; border-radius: 0 0 0 5px; height: 32px; margin: 0; outline: medium none; width: 250px; }
 #formations_search { border: 1px dotted #0E6767; border-radius: 0 0 0 5px; color: #2C3E50; height: 32px; margin: 0; outline: medium none; width: 250px; }
+#formations_search_button {	background: linear-gradient(to left bottom, #0E6767, #0E6767) repeat scroll 0 0 rgba(0, 0, 0, 0); border-radius: 0 5px 5px 0; display: inline; height: 32px; width: 32px; cursor: pointer; text-align: center; position: absolute; left: 521px; top: 86px;}
+#formations_search_button img { padding: 5px 2px 2px 3px; }
+div.formations_search #annee_acad { border: 1px dotted #0E6767; border-radius: 0 0 0 5px; color: #2C3E50; height: 32px; margin: 0; outline: medium none; width: 116px; }
 
-#formations_search_button {	background: linear-gradient(to left bottom, #0E6767, #0E6767) repeat scroll 0 0 rgba(0, 0, 0, 0); border-radius: 0 5px 5px 0; display: inline-block; height: 32px; width: 32px; cursor: pointer; text-align: center; }
+#formations_clrsearch_button { background: linear-gradient(to left bottom, #0E6767, #0E6767) repeat scroll 0 0 rgba(0, 0, 0, 0); border-radius: 0 5px 5px 5px; display: inline; height: 32px; width: 32px; cursor: pointer; text-align: center; padding: 6px 15px 0px; margin: 15px;}
+#formations_advsearch_button { background: linear-gradient(to left bottom, #0E6767, #0E6767) repeat scroll 0 0 rgba(0, 0, 0, 0); border-radius: 0 5px 5px 5px; display: inline; height: 32px; width: 32px; cursor: pointer; text-align: center; padding: 6px 15px 0px; margin: 15px;}
+td.toolbar { text-align: center; padding-top: 15px;}
 
-#formations_search_button img { vertical-align: bottom;	margin-bottom: 0px;	padding-top: 3px; }
+fieldset.recherche_avancee { color: #0E6767; }
+fieldset.open { border: 1px solid #0e6767; }
+fieldset.closed { border: none; }
+table.recherche_avancee { border-collapse: none; }
 
-div.formation_legendes { float: right;	display: inline-block; }
+#formations { width: 900px;  margin: 10px auto; }
+#liste_formations { width: 900px; font-size: small;}
+#liste_formations th { padding: 0px 3px; }
+#liste_formations tr { height: 2em; }
+#liste_formations tr:nth-child(even){ background-color: #cfe9e9; }
+#liste_formations td { padding: 0px 3px; }
+tr.nonpublie { font-style: italic; color: #999999; }
+p.formations_nbr { font-size: small; color: #666666;  margin: 0 0 5px 40px; }
+div.formations_legendes { float: right; display: inline-block; }
+div.formations_legende { display: inline-block;	margin: 0 6px; }
+div.formations_legende_color { height: 10px; width: 10px; margin: 0 3px; display: inline-block; }
+div.formations_legende_label { font-size: small; display: inline-block;	font-style: italic; }
+div.formation_status_F { height: 10px; width: 10px; margin: 0 3px; display: inline-block; background: #8a1111; }
+div.formation_status_L { height: 10px; width: 10px; margin: 0 3px; display: inline-block; background: #ab42aa; }
+div.formation_status_U { height: 10px; width: 10px; margin: 0 3px; display: inline-block; background: #e76b1f; }
+div.formation_status_N { height: 10px; width: 10px; margin: 0 3px; display: inline-block; background: #e7c903; }
+div.pager_formation_pages { color: #0E6767; font-style: underline; font-size: small; text-align: center; width: 500px; display: inline-block;}
+span.pager_formations { cursor: pointer; }
+.pager_active { font-weight: bold; font-size: medium; }
+#formations_col_id { width: 13px; }
+#formations_col_status { width: 13px; }
+#formations_col_date { width: 180px; }
+#formations_col_code { width: 100px; }
 
-div.formation_legende { display: inline-block;	margin: 0 10px; }
+div.toolbar { width: 900px;  margin: 0 auto; }
+.cataloforma_button { border: none; background: linear-gradient(to left bottom, #0E6767, #0E6767) repeat scroll 0 0 rgba(0, 0, 0, 0); color: #ffffff; border-radius: 0 5px 5px 5px; height: 28px; }
+.cataloforma_button_droit { border: none; background: linear-gradient(to left bottom, #0E6767, #0E6767) repeat scroll 0 0 rgba(0, 0, 0, 0); color: #ffffff; border-radius: 0 0px 0px 5px; height: 28px; }
 
-div.formation_legende_color { height: 10px; width: 10px; margin: 0 3px; display: inline-block; }
-
-div.formation_legende_label { font-size: small; display: inline-block;	font-style: italic; }
+#new_inscrit { border: 1px dotted #0e6767; border-radius: 0 5px 5px 0px; height: 28px; margin: 0; outline: medium none; width: 200px; }
+#inscritsListe { margin: 10px auto; width: 900px; } 
+#liste_inscrits { width: 900px; font-size: small;}
+#liste_inscrits th { padding: 0px 3px; }
+#liste_inscrits tr { height: 2em; }
+#liste_inscrits tr:nth-child(even){ background-color: #cfe9e9; }
+#liste_inscrits td { padding: 0px 3px; }

@@ -289,17 +289,26 @@
       $('legend.recherche_avancee').click(function(){
         $('table.recherche_avancee').toggle();
         if($('table.recherche_avancee').is(':visible')){
-          $('legende.recherche_avance').removeClass('closed');
-          $('legende.recherche_avance').addClass('open');
+          $('legende.recherche_avancee').removeClass('closed');
+          $('legende.recherche_avancee').addClass('open');
+          $('#recherche_avancee fieldset').removeClass('closed');
+          $('#recherche_avancee fieldset').addClass('open');
         } else {
-          $('legende.recherche_avance').removeClass('open');
-          $('legende.recherche_avance').addClass('closed');
+          $('legende.recherche_avancee').removeClass('open');
+          $('legende.recherche_avancee').addClass('closed');
+          $('#recherche_avancee fieldset').removeClass('open');
+          $('#recherche_avancee fieldset').addClass('closed');
         }
       }); 
 
       initFormations();
 
       $('#formations_search_button').click(function(){
+        $('#pager_formations').val('0');
+        getFormations();
+      });
+
+      $('#annee_acad').change(function(){
         $('#pager_formations').val('0');
         getFormations();
       });

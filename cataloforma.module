@@ -1515,9 +1515,9 @@ function theme_cataloforma_formation_view($variables){
   if(cataloforma_user_access(CATALOFORMA_ACCESS_ADMIN)){
     $content .= "
     <div class='formation_boutons'>
-      <input type='button' id='edit_formation' name='edit_formation' value='".t('editer')."'/>
-      <input type='button' id='clone_formation' name='clone_formation' value='".t('cloner')."'/>
-      <input type='button' id='del_formation' name='del_formation' value='".t('supprimer')."'/>
+      <input class='cataloforma_button' type='button' id='edit_formation' name='edit_formation' value='".t('editer')."'/>
+      <input class='cataloforma_button' type='button' id='clone_formation' name='clone_formation' value='".t('cloner')."'/>
+      <input class='cataloforma_button' type='button' id='del_formation' name='del_formation' value='".t('supprimer')."'/>
     </div><!--formation_boutons-->
     ";
   }
@@ -1535,12 +1535,12 @@ function theme_cataloforma_formation_view($variables){
     </div>
     <div class='toolbar'>
       <input type='hidden' id='id_formation' name='id_formation' value='".$formation->id."'/>  
-      <input type='button' id='del_inscrits' name='del_inscrits' value='".t('desinscrire')."'/>
-      <input type='button' id='mail_inscrits' name='mail_inscrits' value='".t('publipostage')."'/>
-      <input type='button' id='csv_inscrits' name='csv_inscrits' value='".t('telecharger inscrits')."'/>
-      <input type='button' id='csv_presences' name='csv_presences' value='".t('telecharger presences')."'/>
-      <input type='button' id='upd_inscrits' name='upd_inscrits' value='".t('mettre a jour')."'/>
-      <input type='button' id='add_inscrit' name='add_inscrit' value='".t('nouvelle inscription')."'/><input type='text' id='new_inscrit' name='new_inscrit' value=''/>
+      <input class='cataloforma_button' type='button' id='del_inscrits' name='del_inscrits' value='".t('desinscrire')."'/>
+      <input class='cataloforma_button' type='button' id='mail_inscrits' name='mail_inscrits' value='".t('publipostage')."'/>
+      <input class='cataloforma_button' type='button' id='csv_inscrits' name='csv_inscrits' value='".t('telecharger inscrits')."'/>
+      <input class='cataloforma_button' type='button' id='csv_presences' name='csv_presences' value='".t('telecharger presences')."'/>
+      <input class='cataloforma_button' type='button' id='upd_inscrits' name='upd_inscrits' value='".t('mettre a jour')."'/><br/>
+      <input class='cataloforma_button_droit' type='button' id='add_inscrit' name='add_inscrit' value='".t('inscription')."'/><input type='text' id='new_inscrit' name='new_inscrit' value=''/>
     </div>
     </form>
   </div>"; 
@@ -1931,7 +1931,7 @@ function theme_cataloforma_recherche_avancee($variables){
   $criteres = $variables['criteres'];
   $output = "
   <div id='recherche_avancee'>
-    <fieldset class='recherche_avancee'>
+    <fieldset class='recherche_avancee closed'>
       <legend class='recherche_avancee closed'>".t("recherche avancee")."</legend>
     <table class='recherche_avancee'>
       <tr class='recherche_field'>
@@ -2015,7 +2015,7 @@ function theme_cataloforma_recherche_avancee($variables){
         </td>
       </tr>
       <tr>
-        <td colspan='2'>
+        <td  class='toolbar' colspan='2'>
           <div id='formations_clrsearch_button'><img src='sites/all/themes/zen_ifres/images/icone_clear.png'/></div>
           <div id='formations_advsearch_button'><img src='sites/all/themes/zen_ifres/images/icone_recherche.png'/></div>
         </td>
@@ -2109,49 +2109,11 @@ function theme_cataloforma_formations($variables){
       <div id='formations_search_button'><img src='sites/all/themes/zen_ifres/images/icone_recherche.png'/></div>
     </div><!--formations_search-->";
   $output .= theme("cataloforma_recherche_avancee", array("criteres" => $criteres)); 
-  $output .="  
-    <div class='formations_legendes'>
-      <div class='formations_legende'>
-        <div class='formations_legende_color' style='background: #0E6767'></div>
-        <div class='formations_legende_label'><span>".t('actuelle')."</span></div>
-      </div>
-      <div class='formations_legende'>
-        <div class='formations_legende_color' style='background: #ab42aa'></div>
-        <div class='formations_legende_label'><span>".t('trop tard')."</span></div>
-      </div>
-      <div class='formations_legende'>
-        <div class='formations_legende_color' style='background: #555555'></div>
-        <div class='formations_legende_label'><span>".t('passee')."</span></div>
-      </div>
-      <div class='formations_legende'>
-        <div class='formations_legende_color' style='background: #e53333'></div>
-        <div class='formations_legende_label'><span>".t('complete')."</span></div>
-      </div>
-    </div><!--formations_legendes-->
+  $output .="
   </div><!--formations_toolbar-->  
   <div id='formations'>
   ".theme("cataloforma_ajax_formations", array("formations" => $formations, "data" => $data))."
   </div><!--formations-->
-  <div class='formations_toolbar'>
-    <div class='formations_legendes'>
-      <div class='formations_legende'>
-        <div class='formations_legende_color' style='background: #0E6767'></div>
-        <div class='formations_legende_label'><span>".t('actuelle')."</span></div>
-      </div>
-      <div class='formations_legende'>
-        <div class='formations_legende_color' style='background: #ab42aa'></div>
-        <div class='formations_legende_label'><span>".t('trop tard')."</span></div>
-      </div>
-      <div class='formations_legende'>
-        <div class='formations_legende_color' style='background: #555555'></div>
-        <div class='formations_legende_label'><span>".t('passee')."</span></div>
-      </div>
-      <div class='formations_legende'>
-        <div class='formations_legende_color' style='background: #e53333'></div>
-        <div class='formations_legende_label'><span>".t('complete')."</span></div>
-      </div>
-    </div><!--formations_legendes-->
-  </div><!--formations_toolbar-->
   </form>    
   ";
   return $output;
@@ -2161,14 +2123,72 @@ function theme_cataloforma_ajax_formations($variables){
   global $user;
   $formations  = $variables['formations'];
   $data        = $variables['data'];
+  $pager = (!empty($data['pager'])) ? $data['pager'] : 0;
+  $tot_pages = ceil(((float) $formations['count']) / CATALOFORMA_PAGER_NBR);
+
   $content = "
     <div id='messageFormation' class='message'></div>
     <input type='hidden' id='sort_formations' name='sort_formations' value='{\"col\": \"".(!empty($data['col']) ? $data['col'] : "date_debut")."\",\"by\":\"".(!empty($data['by']) ? $data['by'] : "DESC")."\"}'/>
     <input type='hidden' id='pager_formations' name='pager_formations' value='".(!empty($data['pager']) ? $data['pager'] : "0")."'/>
+    <div class='formations_toolbar'>
+  ";
+  if($tot_pages > 1){
+      $content .="
+      <div class='pager_formation_pages'>";
+    if($pager > 0){
+      $content .= " 
+        <span class='pager_formations' pager='0'>".t("premier")."</span>
+        <span class='pager_formations' pager='".($pager - 1)."'>".t("precedent")."</span>";
+    }
+    if(($pager - 4) > 0) $content .= "<span>...</span>";
+
+    for($i = $pager-4; $i < $pager; $i++) {
+      if($i < 0) continue;
+      $content .= "
+        <span class='pager_formations' pager='".$i."'>".($i+1)."</span>";
+    }
+    $content .= "
+        <span class='pager_formations pager_active' pager='".$pager."'>".($pager+1)."</span>";
+    for($i = $pager+1; $i < $pager + 5; $i++) {
+      if($i == $tot_pages) break;
+      $content .= "
+        <span class='pager_formations' pager='".$i."'>".($i+1)."</span>";
+    }  
+    if(($pager + 4) < $tot_pages) $content .= "<span>...</span>";    
+    if($pager < ($tot_pages-1)) {
+      $content .= "
+        <span class='pager_formations' pager='".($pager + 1)."'>".t("suivant")."</span>
+        <span class='pager_formations' pager='".($tot_pages - 1)."'>".t("dernier")."</span>";
+    }
+    $content .= "    
+      </div>
+    ";
+  }
+  $content .= "
+    <div class='formations_legendes'>
+        <div class='formations_legende'>
+          <div class='formation_status_F'></div>
+          <div class='formations_legende_label'><span>".t('complete')."</span></div>
+        </div>
+        <div class='formations_legende'>
+          <div class='formation_status_L'></div>
+          <div class='formations_legende_label'><span>".t('trop tard')."</span></div>
+        </div>
+        <div class='formations_legende'>
+          <div class='formation_status_U'></div>
+          <div class='formations_legende_label'><span>".t('modifiee')."</span></div>
+        </div>
+        <div class='formations_legende'>
+          <div class='formation_status_N'></div>
+          <div class='formations_legende_label'><span>".t('nouvelle')."</span></div>
+        </div>
+      </div><!--formations_legendes-->
+    </div><!--formations_toolbar-->
     <table id='liste_formations'>
       <tr>";
-  if(user_access(CATALOFORMA_PERM_ADMIN)) $content.= "<th><input type='checkbox' id='all_formations' name='all_formations' value='1' ".(!empty($data['all_formations']) ? "checked" : "")."/></th>";
-  $content .="      
+  if(user_access(CATALOFORMA_PERM_ADMIN)) $content.= "<th id='formations_col_id'><input type='checkbox' id='all_formations' name='all_formations' value='1' ".(!empty($data['all_formations']) ? "checked" : "")."/></th>";
+  $content .=" 
+        <th id='formations_col_status'>&nbsp;</th>     
         <th id='formations_col_date'>".t("date debut")."</th>
         <th id='formations_col_code'> ".t("code")."</th>
         <th id='formations_col_intitule'>".t("intitule")."</th>
@@ -2179,6 +2199,7 @@ function theme_cataloforma_ajax_formations($variables){
       <tr ".($formation->is_publie == 0 ? "class='nonpublie' " : "class='publie'").">";
     if(user_access(CATALOFORMA_PERM_ADMIN)) $content .= "<td><input type='checkbox' name='formations[]' value='".$formation->id."' ".(!empty($data['formations']) && in_array($formation->id, $data['formations']) ? "checked" : "")." /></td>";
     $content .= "
+        <td><div class='formation_status_".$formation->status."'></div></td>
         <td>".date(CATALOFORMA_FORMAT_DATE_HEURE, $formation->date_debut)." ".t("a")." ".date(CATALOFORMA_FORMAT_HEURE, $formation->date_fin)."</td>
         <td><a href='#' class='formations_bycode'>".(!empty($data) ? utf8_decode($formation->code) : $formation->code)."</a></td>
         <td><div class='formation_color_".$formation->status."'><a href='./formation/view/".$formation->id."'>".(!empty($data) ? utf8_decode($formation->intitule) : $formation->intitule)."</a></div></td>
@@ -2186,48 +2207,73 @@ function theme_cataloforma_ajax_formations($variables){
     ";
   }
 
-  $pager = (!empty($data['pager'])) ? $data['pager'] : 0;
-  $tot_pages = ceil(((float) $formations['count']) / CATALOFORMA_PAGER_NBR);
+  
 
-  $content .= " 
-      <tr colspan='".((user_access(CATALOFORMA_PERM_ADMIN)) ? "4" : "3")."'>".t("Nombre de formations")." ".$formations['count']."</tr>   
+  $content .= "    
     </table>
-    <div class='pager_formation_pages'>";
-  if($pager > 0){
-    $content .= " 
-      <span class='pager_formations' pager='0'>".t("premier")."</span>
-      <span class='pager_formations' pager='".($pager - 1)."'>".t("precedent")."</span>";
-  }
-  if(($pager - 4) > 0) $content .= "<span>...</span>";
+    <p class='formations_nbr'>".t("Nombre de formations")." ".$formations['count']."</p>
+    <div class='formations_toolbar'>
+  ";
+  if($tot_pages > 1){
+      $content .="
+      <div class='pager_formation_pages'>";
+    if($pager > 0){
+      $content .= " 
+        <span class='pager_formations' pager='0'>".t("premier")."</span>
+        <span class='pager_formations' pager='".($pager - 1)."'>".t("precedent")."</span>";
+    }
+    if(($pager - 4) > 0) $content .= "<span>...</span>";
 
-  for($i = $pager-4; $i < $pager; $i++) {
-    if($i < 0) continue;
+    for($i = $pager-4; $i < $pager; $i++) {
+      if($i < 0) continue;
+      $content .= "
+        <span class='pager_formations' pager='".$i."'>".($i+1)."</span>";
+    }
     $content .= "
-      <span class='pager_formations' pager='".$i."'>".($i+1)."</span>";
+        <span class='pager_formations pager_active' pager='".$pager."'>".($pager+1)."</span>";
+    for($i = $pager+1; $i < $pager + 5; $i++) {
+      if($i == $tot_pages) break;
+      $content .= "
+        <span class='pager_formations' pager='".$i."'>".($i+1)."</span>";
+    }  
+    if(($pager + 4) < $tot_pages) $content .= "<span>...</span>";    
+    if($pager < ($tot_pages-1)) {
+      $content .= "
+        <span class='pager_formations' pager='".($pager + 1)."'>".t("suivant")."</span>
+        <span class='pager_formations' pager='".($tot_pages - 1)."'>".t("dernier")."</span>";
+    }
+    $content .= "    
+      </div>
+    ";
   }
   $content .= "
-      <span class='pager_formations pager_active' pager='".$pager."'>".($pager+1)."</span>";
-  for($i = $pager+1; $i < $pager + 5; $i++) {
-    if($i == $tot_pages) break;
-    $content .= "
-      <span class='pager_formations' pager='".$i."'>".($i+1)."</span>";
-  }  
-  if(($pager + 4) < $tot_pages) $content .= "<span>...</span>";    
-  if($pager < ($tot_pages-1)) {
-    $content .= "
-      <span class='pager_formations' pager='".($pager + 1)."'>".t("suivant")."</span>
-      <span class='pager_formations' pager='".($tot_pages - 1)."'>".t("dernier")."</span>";
-  }
-  $content .= "    
-    </div>
+    <div class='formations_legendes'>
+        <div class='formations_legende'>
+          <div class='formation_status_F'></div>
+          <div class='formations_legende_label'><span>".t('complete')."</span></div>
+        </div>
+        <div class='formations_legende'>
+          <div class='formation_status_L'></div>
+          <div class='formations_legende_label'><span>".t('trop tard')."</span></div>
+        </div>
+        <div class='formations_legende'>
+          <div class='formation_status_U'></div>
+          <div class='formations_legende_label'><span>".t('modifiee')."</span></div>
+        </div>
+        <div class='formations_legende'>
+          <div class='formation_status_N'></div>
+          <div class='formations_legende_label'><span>".t('nouvelle')."</span></div>
+        </div>
+      </div><!--formations_legendes-->
+    </div><!--formations_toolbar-->
   ";
   if(user_access(CATALOFORMA_PERM_ADMIN)){
     $content .="
     <div class='toolbar'>
-      <input type='button' id='pub_formations' name='pub_formations' value='".t('publier')."'/>
-      <input type='button' id='unpub_formations' name='unpub_formations' value='".t('masquer')."'/>
-      <input type='button' id='add_formation' name='add_formation' value='".t('ajouter formation')."'/>
-      <input type='button' id='add_inscrit' name='add_inscrit' value='".t('nouvelle inscription')."'/><input type='text' id='new_inscrit' name='new_inscrit' value=''/>
+      <input class='cataloforma_button' type='button' id='pub_formations' name='pub_formations' value='".t('publier')."'/>
+      <input class='cataloforma_button' type='button' id='unpub_formations' name='unpub_formations' value='".t('masquer')."'/>
+      <input class='cataloforma_button' type='button' id='add_formation' name='add_formation' value='".t('ajouter formation')."'/>
+      <input class='cataloforma_button_droit' type='button' id='add_inscrit' name='add_inscrit' value='".t('nouvelle inscription')."'/><input type='text' id='new_inscrit' name='new_inscrit' value=''/>
     </div>
     ";  
   }
