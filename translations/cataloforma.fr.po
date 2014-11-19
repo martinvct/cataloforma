@@ -25,15 +25,15 @@ msgstr "Administrer le catalogue des formations IFRES"
 
 #: cataloforma.module:516;529
 msgid "formations mises a jour"
-msgstr "formations mises Ã  jour"
+msgstr "formations mises à jour"
 
 #: cataloforma.module:673
 msgid "presences mises a jour"
-msgstr "prÃ©sences mises Ã  jour"
+msgstr "présences mises à jour"
 
 #: cataloforma.module:693
 msgid "@login desinscrit"
-msgstr "@login dÃ©sinscrit"
+msgstr "@login désinscrit"
 
 #: cataloforma.module:718
 msgid "login @login non reconnu"
@@ -41,27 +41,27 @@ msgstr "login @login non reconnu"
 
 #: cataloforma.module:727;751
 msgid "@login deja inscrit a @formation"
-msgstr "@login dÃ©jÃ  inscrit Ã  @formation"
+msgstr "@login déjà inscrit à @formation"
 
 #: cataloforma.module:731;737;755;761
 msgid "@login inscrit a @formation"
-msgstr "@login inscrit Ã  @formation"
+msgstr "@login inscrit à @formation"
 
 #: cataloforma.module:843;1003
 msgid "fichier non telecharge"
-msgstr "fichier non tÃ©lÃ©chargÃ©"
+msgstr "fichier non téléchargé"
 
 #: cataloforma.module:844
 msgid "message(s) non envoye(s)"
-msgstr "message(s) non envoyÃ©(s)"
+msgstr "message(s) non envoyé(s)"
 
 #: cataloforma.module:871
 msgid "@counter message(s) envoye(s)"
-msgstr "@counter message(s) envoyÃ©(s)"
+msgstr "@counter message(s) envoyé(s)"
 
 #: cataloforma.module:942
 msgid "intitule vide"
-msgstr "intitulÃ© vide"
+msgstr "intitulé vide"
 
 #: cataloforma.module:946
 msgid "code vide"
@@ -69,7 +69,7 @@ msgstr "code vide"
 
 #: cataloforma.module:950
 msgid "date de debut incorrecte"
-msgstr "date de dÃ©but incorrecte"
+msgstr "date de début incorrecte"
 
 #: cataloforma.module:954
 msgid "heure de debut incorrecte"
@@ -85,19 +85,19 @@ msgstr "date limite incorrecte"
 
 #: cataloforma.module:976
 msgid "condition access : code inconnu"
-msgstr "condition d'accÃ¨s : code inconnu"
+msgstr "condition d'accès : code inconnu"
 
 #: cataloforma.module:995
 msgid "condition access : erreur syntaxe"
-msgstr "condition d'accÃ¨s : erreur de syntaxe"
+msgstr "condition d'accès : erreur de syntaxe"
 
 #: cataloforma.module:1024
 msgid "formation  @titre ajoutee"
-msgstr "formation  @titre ajoutÃ©e"
+msgstr "formation  @titre ajoutée"
 
 #: cataloforma.module:1028
 msgid "formation  @titre modifiee"
-msgstr "formation  @titre modifiÃ©e"
+msgstr "formation  @titre modifiée"
 
 #: cataloforma.module:1214;1236
 msgid "actuelle"
@@ -109,11 +109,11 @@ msgstr "trop tard"
 
 #: cataloforma.module:1222;1244
 msgid "passee"
-msgstr "passÃ©e"
+msgstr "passée"
 
 #: cataloforma.module:1226;1248;1994;2171;2253
 msgid "complete"
-msgstr "complÃ¨te"
+msgstr "complète"
 
 #: cataloforma.module:1254
 msgid "Google Agenda"
@@ -125,7 +125,7 @@ msgstr "date"
 
 #: cataloforma.module:1280
 msgid "le @date de @heuredeb a @heurefin"
-msgstr "le @date de @heuredeb Ã  @heurefin"
+msgstr "le @date de @heuredeb à @heurefin"
 
 #: cataloforma.module:1289;1645;1975
 msgid "intervenants"
@@ -137,7 +137,7 @@ msgstr "objectifs"
 
 #: cataloforma.module:1315;1678
 msgid "deroulement"
-msgstr "dÃ©roulement"
+msgstr "déroulement"
 
 #: cataloforma.module:1329;1690
 msgid "cours ecampus"
@@ -153,7 +153,7 @@ msgstr "lieu"
 
 #: cataloforma.module:1372;1745
 msgid "credits"
-msgstr "crÃ©dits"
+msgstr "crédits"
 
 #: cataloforma.module:1386;1757
 msgid "fiche"
@@ -169,7 +169,7 @@ msgstr "date limite d'inscription"
 
 #: cataloforma.module:1425;1805
 msgid "condition acces"
-msgstr "condition d'accÃ¨s"
+msgstr "condition d'accès"
 
 #: cataloforma.module:1437;1817
 msgid "formation type"
@@ -177,11 +177,11 @@ msgstr "type de formation"
 
 #: cataloforma.module:1445;1830
 msgid "face-to-face"
-msgstr "prÃ©sentiel"
+msgstr "présentiel"
 
 #: cataloforma.module:1445;1830
 msgid "on line"
-msgstr "Ã  distance"
+msgstr "à distance"
 
 #: cataloforma.module:1445;1830
 msgid "blended learning"
@@ -189,7 +189,7 @@ msgstr "blended learning"
 
 #: cataloforma.module:1449;1834
 msgid "modalite"
-msgstr "modalitÃ©"
+msgstr "modalité"
 
 #: cataloforma.module:1462;1850
 msgid "remarques"
@@ -197,7 +197,7 @@ msgstr "remarques"
 
 #: cataloforma.module:1475;1862
 msgid "publie"
-msgstr "publiÃ©e"
+msgstr "publiée"
 
 #: cataloforma.module:1478;1866;2377
 msgid "oui"
@@ -209,15 +209,15 @@ msgstr "non"
 
 #: cataloforma.module:1486
 msgid "date derniere modification"
-msgstr "date de derniÃ¨re modification"
+msgstr "date de dernière modification"
 
 #: cataloforma.module:1501
 msgid "modifie par"
-msgstr "modifiÃ© par"
+msgstr "modifié par"
 
 #: cataloforma.module:1518
 msgid "editer"
-msgstr "Ã©diter"
+msgstr "éditer"
 
 #: cataloforma.module:1519
 msgid "cloner"
@@ -229,7 +229,7 @@ msgstr "supprimer"
 
 #: cataloforma.module:1538
 msgid "desinscrire"
-msgstr "dÃ©sinscrire"
+msgstr "désinscrire"
 
 #: cataloforma.module:1539;2076
 msgid "publipostage"
@@ -241,11 +241,11 @@ msgstr "csv des inscrits"
 
 #: cataloforma.module:1541
 msgid "telecharger presences"
-msgstr "csv des prÃ©sences"
+msgstr "csv des présences"
 
 #: cataloforma.module:1542;1882
 msgid "mettre a jour"
-msgstr "mettre Ã  jour"
+msgstr "mettre à jour"
 
 #: cataloforma.module:1543
 msgid "inscription"
@@ -257,7 +257,7 @@ msgstr "s'inscrire"
 
 #: cataloforma.module:1569
 msgid "medesinscrire"
-msgstr "se dÃ©sinscrire"
+msgstr "se désinscrire"
 
 #: cataloforma.module:1600
 msgid "nouvelle formation"
@@ -265,7 +265,7 @@ msgstr "nouvelle formatio"
 
 #: cataloforma.module:1607;1947;2194;2363;2373;2390
 msgid "intitule"
-msgstr "intitulÃ©"
+msgstr "intitulé"
 
 #: cataloforma.module:1616;1961;2193;2373;2390
 msgid "code"
@@ -277,7 +277,7 @@ msgstr " de "
 
 #: cataloforma.module:1629
 msgid " a "
-msgstr " Ã  "
+msgstr " à "
 
 #: cataloforma.module:1656
 msgid "nouvel intervenant"
@@ -289,71 +289,71 @@ msgstr ""
 
 #: cataloforma.module:1772
 msgid "contact nom"
-msgstr ""
+msgstr "Personne de contact"
 
 #: cataloforma.module:1783
 msgid "contact mail"
-msgstr ""
+msgstr "Courriel de contact"
 
 #: cataloforma.module:1883;2077
 msgid "retour"
-msgstr ""
+msgstr "Retour"
 
 #: cataloforma.module:1903;2046
 msgid "date inscription"
-msgstr ""
+msgstr "Date d'inscription"
 
 #: cataloforma.module:1904;2047;2303
 msgid "login"
-msgstr ""
+msgstr "Identifiant"
 
 #: cataloforma.module:1905;2048;2311
 msgid "nom"
-msgstr ""
+msgstr "Nom"
 
 #: cataloforma.module:1906;2049;2319
 msgid "prenom"
-msgstr ""
+msgstr "Prénom"
 
 #: cataloforma.module:1907;2050
 msgid "ok"
-msgstr "ok"
+msgstr "Ok"
 
 #: cataloforma.module:1907;2050
 msgid "presence"
-msgstr ""
+msgstr "Présence"
 
 #: cataloforma.module:1924
 msgid "Nombre d'inscrits"
-msgstr ""
+msgstr "Nombre d'inscrits"
 
 #: cataloforma.module:1935
 msgid "recherche avancee"
-msgstr ""
+msgstr "Recherche avancée"
 
 #: cataloforma.module:1942
 msgid "du"
-msgstr ""
+msgstr "du"
 
 #: cataloforma.module:1942
 msgid "au"
-msgstr ""
+msgstr "au"
 
 #: cataloforma.module:1951;1965;1979
 msgid "egal a"
-msgstr ""
+msgstr "égal à"
 
 #: cataloforma.module:1952;1966;1980
 msgid "contient"
-msgstr ""
+msgstr "contient"
 
 #: cataloforma.module:1953;1967;1981
 msgid "commence par"
-msgstr ""
+msgstr "commence par"
 
 #: cataloforma.module:1954;1968;1982
 msgid "termine par"
-msgstr ""
+msgstr "termine par"
 
 #: cataloforma.module:1989
 msgid "status"
@@ -361,19 +361,19 @@ msgstr "statut"
 
 #: cataloforma.module:1993;2007
 msgid "toutes"
-msgstr ""
+msgstr "toutes"
 
 #: cataloforma.module:1996
 msgid "mise a jour"
-msgstr ""
+msgstr "Mise à jour"
 
 #: cataloforma.module:1997;2183;2265
 msgid "nouvelle"
-msgstr ""
+msgstr "Nouvelle"
 
 #: cataloforma.module:2003
 msgid "id_type"
-msgstr ""
+msgstr "type"
 
 #: cataloforma.module:2062
 msgid "OK"
@@ -381,63 +381,63 @@ msgstr "OK"
 
 #: cataloforma.module:2070
 msgid "title"
-msgstr ""
+msgstr "Titre"
 
 #: cataloforma.module:2071
 msgid "message"
-msgstr ""
+msgstr "Message"
 
 #: cataloforma.module:2072
 msgid "attachment"
-msgstr ""
+msgstr "Pièce jointe"
 
 #: cataloforma.module:2140;2222
 msgid "premier"
-msgstr ""
+msgstr "Première"
 
 #: cataloforma.module:2141;2223
 msgid "precedent"
-msgstr ""
+msgstr "Précédente"
 
 #: cataloforma.module:2160;2242
 msgid "suivant"
-msgstr ""
+msgstr "Suivante"
 
 #: cataloforma.module:2161;2243
 msgid "dernier"
-msgstr ""
+msgstr "Dernière"
 
 #: cataloforma.module:2179;2261
 msgid "modifiee"
-msgstr ""
+msgstr "Modifiée"
 
 #: cataloforma.module:2192
 msgid "date debut"
-msgstr ""
+msgstr "Date de début"
 
 #: cataloforma.module:2203
 msgid "a"
-msgstr ""
+msgstr "à"
 
 #: cataloforma.module:2214
 msgid "Nombre de formations"
-msgstr ""
+msgstr "Nombre de formations"
 
 #: cataloforma.module:2273
 msgid "publier"
-msgstr ""
+msgstr "Publier"
 
 #: cataloforma.module:2274
 msgid "masquer"
-msgstr ""
+msgstr "Masquer"
 
 #: cataloforma.module:2275
 msgid "ajouter formation"
-msgstr ""
+msgstr "Ajouter une formation"
 
 #: cataloforma.module:2276
 msgid "nouvelle inscription"
-msgstr ""
+msgstr "Nouvelle inscription"
 
 #: cataloforma.module:2327
 msgid "mail"
@@ -445,95 +445,95 @@ msgstr "courriel"
 
 #: cataloforma.module:2337
 msgid "Programme des cours"
-msgstr ""
+msgstr "Programme des cours"
 
 #: cataloforma.module:2341
 msgid "Formations IFRES"
-msgstr ""
+msgstr "Formations IFRES"
 
 #: cataloforma.module:2342
 msgid "Cours eCampus"
-msgstr ""
+msgstr "Espaces cours Ecampus"
 
 #: cataloforma.module:2349
 msgid "annee"
-msgstr ""
+msgstr "Année"
 
 #: cataloforma.module:2363;2390
 msgid "partim"
-msgstr ""
+msgstr "Partim"
 
 #: cataloforma.module:2363;2390
 msgid "role"
-msgstr "rÃ´le"
+msgstr "rôle"
 
 #: cataloforma.module:2363;2390
 msgid "section"
-msgstr ""
+msgstr "section"
 
 #: cataloforma.module:2363
 msgid "ecampus"
-msgstr ""
+msgstr "eCampus"
 
 #: cataloforma.module:2373
 msgid "credit"
-msgstr ""
+msgstr "crédit"
 
 #: cataloforma.module:2373
 msgid "present"
-msgstr ""
+msgstr "présent"
 
 #: cataloforma.module:2381
 msgid "total credits"
-msgstr ""
+msgstr "Nombre total de crédits"
 
 #: cataloforma.module:2892;3378
 msgid "error cursus code"
-msgstr ""
+msgstr "Erreur de code cursus"
 
 #: cataloforma.module:2911
 msgid "error syntax"
-msgstr ""
+msgstr "Erreur de syntaxe"
 
 #: cataloforma.module:3063
 msgid "@login @firstname @lastname courriel envoye"
-msgstr ""
+msgstr "@login @firstname @lastname courriel envoyé"
 
 #: cataloforma.module:3069
 msgid "@login @firstname @lastname courriel @courriel invalide"
-msgstr ""
+msgstr "@login @firstname @lastname courriel @courriel invalide"
 
 #: cataloforma.module:3136
 msgid "mail sent"
-msgstr ""
+msgstr "Courriel envoyé"
 
 #: cataloforma.module:3372
 msgid "You have to be registered to"
-msgstr ""
+msgstr "Vous devez être inscrit à "
 
 #: cataloforma.module:3391
 msgid " and to "
-msgstr ""
+msgstr " et à"
 
 #: cataloforma.module:3392
 msgid " or to "
-msgstr ""
+msgstr " ou à "
 
 #: cataloforma.module:3393
 msgid " and not "
-msgstr ""
+msgstr " et non à "
 
 #: cataloforma.module:3414
 msgid "begin date"
-msgstr ""
+msgstr "Date de début"
 
 #: cataloforma.module:3415
 msgid "end date"
-msgstr ""
+msgstr "Date de fin"
 
 #: cataloforma.module:3416
 msgid "at place"
-msgstr ""
+msgstr " à l'adresse  "
 
 #: cataloforma.module:3438
 msgid "User ID"
@@ -545,23 +545,23 @@ msgstr "Nom d'utilisateur"
 
 #: cataloforma.module:3440
 msgid "Date registered"
-msgstr ""
+msgstr "Date d'inscription"
 
 #: cataloforma.module:3441
 msgid "First name"
-msgstr ""
+msgstr "Prénom"
 
 #: cataloforma.module:3442
 msgid "Last name"
-msgstr ""
+msgstr "Nom"
 
 #: cataloforma.module:3443
 msgid "Mail"
-msgstr ""
+msgstr "Courriel"
 
 #: cataloforma.module:3444
 msgid "Service"
-msgstr ""
+msgstr "Service"
 
 #: cataloforma.module:3446
 msgid "Signature"
@@ -569,17 +569,17 @@ msgstr "Signature"
 
 #: cataloforma.module:3448
 msgid "S"
-msgstr ""
+msgstr "S"
 
 #: cataloforma.module:156
 msgid "Calendrier"
-msgstr ""
+msgstr "Calendrier"
 
 #: cataloforma.info:0
 msgid "Agenda des formations"
-msgstr ""
+msgstr "Agenda des formations"
 
 #: cataloforma.info:0
 msgid "Outil de gestion d'un catalogue de formations avec gestion des inscriptions"
-msgstr ""
+msgstr "Outil de gestion d'un catalogue de formations avec gestion des inscriptions"
 

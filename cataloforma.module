@@ -328,8 +328,45 @@ function cataloforma_importv1_page(){
 
 function cataloforma_calendrier_page(){
   global $user;
-  $data = _cataloforma_cookie_recherche_load();
-  $output = theme('cataloforma_calendrier', array('criteres' => $data));
+  $criteres = _cataloforma_cookie_recherche_load();
+  if(!empty($_POST['pattern'])){
+    $criteres['pattern'] = $_POST['pattern'];
+  } else $criteres['pattern'] = '';
+  if(!empty($_POST['annee_acad'])){
+    $criteres['annee_acad'] = $_POST['annee_acad'];
+  } else $criteres['annee_acad'] = _cataloforma_get_acad(REQUEST_TIME);
+
+  if(!empty($_POST['date_debut'])){
+    $criteres['date_debut'] = $_POST['date_debut'];
+  } else $criteres['date_debut'] = '';
+  if(!empty($_POST['date_fin'])){
+    $criteres['date_fin'] = $_POST['date_fin'];
+  } else $criteres['date_fin'] = '';
+  if(!empty($_POST['intitule_op'])){
+    $criteres['intitule_op'] = $_POST['intitule_op'];
+  } else $criteres['intitule_op'] = 'E';
+  if(!empty($_POST['intitule'])){
+    $criteres['intitule'] = $_POST['intitule'];
+  } else $criteres['intitule'] = '';
+  if(!empty($_POST['code_op'])){
+    $criteres['code_op'] = $_POST['code_op'];
+  } else $criteres['code_op'] = 'E';
+  if(!empty($_POST['code'])){
+    $criteres['code'] = $_POST['code'];
+  } else $criteres['code'] = '';
+  if(!empty($_POST['intervenants_op'])){
+    $criteres['intervenants_op'] = $_POST['intervenants_op'];
+  } else $criteres['intervenants_op'] = 'C';
+  if(!empty($_POST['intervenants'])){
+    $criteres['intervenants'] = $_POST['intervenants'];
+  } else $criteres['intervenants'] = '';
+  if(!empty($_POST['status'])){
+    $criteres['status'] = $_POST['status'];
+  } else $criteres['status'] = '*';
+  if(!empty($_POST['id_type'])){
+    $criteres['id_type'] = $_POST['id_type'];
+  } else $criteres['id_type'] = '*';
+  $output = theme('cataloforma_calendrier', array('criteres' => $criteres));
  
   return $output;
 }
@@ -342,7 +379,7 @@ function cataloforma_ajax_calendrier_page(){
   } else $criteres['pattern'] = '';
   if(!empty($_POST['annee_acad'])){
     $criteres['annee_acad'] = $_POST['annee_acad'];
-  } else $criteres['annee_acad'] = '';
+  } else $criteres['annee_acad'] = _cataloforma_get_acad(REQUEST_TIME);
 
   if(!empty($_POST['date_debut'])){
     $criteres['date_debut'] = $_POST['date_debut'];
@@ -394,6 +431,9 @@ function cataloforma_viewinscrit_page($inscrit){
 function cataloforma_formations_page(){
   global $user;
   $criteres = _cataloforma_cookie_recherche_load();
+  if(!empty($_POST['is_smo'])){
+    $criteres['is_smo'] = $_POST['is_smo'];
+  } else $criteres['is_smo'] = '0';
   if(!empty($_POST['pattern'])){
     $criteres['pattern'] = $_POST['pattern'];
   } else $criteres['pattern'] = '';
@@ -428,9 +468,6 @@ function cataloforma_formations_page(){
   if(!empty($_POST['status'])){
     $criteres['status'] = $_POST['status'];
   } else $criteres['status'] = '*';
-  if(!empty($_POST['id_type'])){
-    $criteres['id_type'] = $_POST['id_type'];
-  } else $criteres['id_type'] = '*';
 
   $data     = array();
   if(!empty($_POST['sort_formations'])){
@@ -441,6 +478,7 @@ function cataloforma_formations_page(){
   if(!empty($_POST['pager_formations'])){
     $data["pager"] = $_POST['pager_formations'];
   }
+  $data["is_smo"] = $criteres["is_smo"];
 
   _cataloforma_cookie_recherche_save($criteres);
   $formations = _cataloforma_bd_formation_getAllFormations($criteres, $data);
@@ -452,12 +490,15 @@ function cataloforma_formations_page(){
 function cataloforma_ajax_formations_page(){
   global $user;
   $criteres = _cataloforma_cookie_recherche_load();
+  if(!empty($_POST['is_smo'])){
+    $criteres['is_smo'] = $_POST['is_smo'];
+  } else $criteres['is_smo'] = '0';
   if(!empty($_POST['pattern'])){
     $criteres['pattern'] = $_POST['pattern'];
   } else $criteres['pattern'] = '';
   if(!empty($_POST['annee_acad'])){
     $criteres['annee_acad'] = $_POST['annee_acad'];
-  } else $criteres['annee_acad'] = '';
+  } else $criteres['annee_acad'] = _cataloforma_get_acad(REQUEST_TIME);
 
   if(!empty($_POST['date_debut'])){
     $criteres['date_debut'] = $_POST['date_debut'];
@@ -486,9 +527,6 @@ function cataloforma_ajax_formations_page(){
   if(!empty($_POST['status'])){
     $criteres['status'] = $_POST['status'];
   } else $criteres['status'] = '*';
-  if(!empty($_POST['id_type'])){
-    $criteres['id_type'] = $_POST['id_type'];
-  } else $criteres['id_type'] = '*';
   
   $data     = array();
   if(!empty($_POST['sort_formations'])){
@@ -499,11 +537,14 @@ function cataloforma_ajax_formations_page(){
   if(!empty($_POST['pager_formations'])){
     $data["pager"] = $_POST['pager_formations'];
   }
+  $data["is_smo"] = $criteres["is_smo"];
 
   _cataloforma_cookie_recherche_save($criteres);
   $formations = _cataloforma_bd_formation_getAllFormations($criteres, $data);
   $output = theme('cataloforma_ajax_formations', array('formations' => $formations, 'data' => $data));
-  print $output;
+  header('Content-Type: text/html;charset=utf-8'); 
+  //$output = htmlentities($output,ENT_QUOTES,"UTF-8"); 
+  echo $output;
   exit;
 }
 
@@ -907,12 +948,18 @@ function cataloforma_ajax_formation_upd_page(){
     $formation->objectifs          = $_POST['ck_objectifs'];
     $formation->deroulement        = $_POST['ck_deroulement'];
     $formation->places             = $_POST['places'];
+    $formation->is_smo             = $_POST['is_smo'];
 
-    list($jour, $mois, $annee, $heure, $min) = sscanf($_POST['date_debut_date']." ".str_replace("h",":", $_POST['date_debut_heure']), "%u/%u/%u %u:%u");
-    $formation->date_debut         = mktime($heure, $min, 0, $mois, $jour, $annee);
+    if($formation->is_smo == 0) {
+      list($jour, $mois, $annee, $heure, $min) = sscanf($_POST['date_debut_date']." ".str_replace("h",":", $_POST['date_debut_heure']), "%u/%u/%u %u:%u");
+      $formation->date_debut         = mktime($heure, $min, 0, $mois, $jour, $annee);
 
-    list($jour, $mois, $annee, $heure, $min) = sscanf($_POST['date_debut_date']." ".str_replace("h",":", $_POST['date_fin_heure']), "%u/%u/%u %u:%u");
-    $formation->date_fin           = mktime($heure, $min, 0, $mois, $jour, $annee);
+      list($jour, $mois, $annee, $heure, $min) = sscanf($_POST['date_debut_date']." ".str_replace("h",":", $_POST['date_fin_heure']), "%u/%u/%u %u:%u");
+      $formation->date_fin           = mktime($heure, $min, 0, $mois, $jour, $annee);
+    } else {
+      $formation->date_debut  = 0;
+      $formation->date_fin    = 0;
+    }  
 
     list($jour, $mois, $annee, $heure, $min) = sscanf(str_replace("h",":", $_POST['date_limite']), "%u/%u/%u %u:%u");
     $formation->date_limite        = mktime($heure, $min, 0, $mois, $jour, $annee);
@@ -928,7 +975,7 @@ function cataloforma_ajax_formation_upd_page(){
     $formation->id_modifby         = $user->uid;
     $formation->annee_acad         = _cataloforma_get_acad($formation->date_debut);
     $formation->lieu               = $_POST['ck_lieu'];
-    $formation->id_type            = $_POST['id_type'];
+    
     if($id_formation == 0) {
       $formation->date_created = REQUEST_TIME;
       $formation->nbr_inscrits = 0;
@@ -946,15 +993,15 @@ function cataloforma_ajax_formation_upd_page(){
       print "<div class='message_erreur'>".t("code vide")."</div>";
       exit;
     }
-    if(!preg_match(CATALOFORMA_REGEXP_DATE, $_POST['date_debut_date'])){
+    if(($formation->is_smo == 0) && (!preg_match(CATALOFORMA_REGEXP_DATE, $_POST['date_debut_date']))){
       print "<div class='message_erreur'>".t("date de debut incorrecte")."</div>";
       exit;
     }
-    if((isset($_POST['date_debut_heure'])) && (!preg_match(CATALOFORMA_REGEXP_HEURE, $_POST['date_debut_heure']))){
+    if(($formation->is_smo == 0) && (isset($_POST['date_debut_heure'])) && (!preg_match(CATALOFORMA_REGEXP_HEURE, $_POST['date_debut_heure']))){
       print "<div class='message_erreur'>".t("heure de debut incorrecte")."</div>";
       exit;
     }
-    if((isset($_POST['date_fin_heure'])) && (!preg_match(CATALOFORMA_REGEXP_HEURE, $_POST['date_fin_heure']))){
+    if(($formation->is_smo == 0) && (isset($_POST['date_fin_heure'])) && (!preg_match(CATALOFORMA_REGEXP_HEURE, $_POST['date_fin_heure']))){
       print "<div class='message_erreur'>".t("heure de fin incorrecte")."</div>";
       exit;
     }
@@ -1149,19 +1196,21 @@ function theme_cataloforma_ajax_calendrier($variables){
   $output_ev = "";
   $maxdate = 0;
   foreach($variables['evenements'] as $evenement){
+    if($evenement->id == 0) continue;
     $maxdate = ($maxdate > $evenement->date_fin ? $maxdate : $evenement->date_fin);
     
     $background = '#0E6767';
     if(($evenement->date_limite < REQUEST_TIME)&&($evenement->date_debut > REQUEST_TIME)) $background = '#ab42aa';
     if($evenement->places - $evenement->nbr_inscrits < 1) $background = '#e53333';
     if(($evenement->date_debut < REQUEST_TIME) && ($evenement->date_fin < REQUEST_TIME)) $background = '#555555';  
-    /*
-      case 'F' :  break;
+    
+    switch($evenement->status){
+      case 'F' : $background = '#8a1111'; break;
       case 'L' : $background = '#ab42aa'; break;
-      case 'U' : $background = '#d46a2a'; break;
-      case 'N' : $background = '#36b436'; break;
+      case 'U' : $background = '#e76b1f'; break;
+      case 'N' : $background = '#e7c903'; break;
       default  : $background = '#0E6767';
-    }*/
+    }
 
     $output_ev .= '{
       "title": "'.utf8_decode(str_replace('"','\"',_cataloforma_clean_string($evenement->intitule, false))).'",
@@ -1173,6 +1222,7 @@ function theme_cataloforma_ajax_calendrier($variables){
       "borderColor": "'.$background.'"
     },';
   }
+  if($maxdate == 0) $maxdate = REQUEST_TIME;
   /*recherche des evenements:
   {
     title: '',
@@ -1203,50 +1253,60 @@ function theme_cataloforma_calendrier($variables){
   
   <div class='calendrier_toolbar'>
     <div class='calendrier_search'>
+      <select id='annee_acad' name='annee_acad'>
+  ";
+  $isFirst = true;
+  $annees = _cataloforma_bd_get_AllAcads();
+  foreach($annees as $annee){
+    $output .= "<option value='".$annee."' ".((((!empty($criteres['annee_acad'])) && ($criteres['annee_acad'] == $annee)) || ((empty($criteres['annee_acad'])) && ($isFirst))) ? "selected" : "").">".$annee."-".($annee+1)."</option>";
+    $isFirst = false;
+  }
+  $output .= "    
+      </select>
       <input type='text' id='calendrier_search' name='calendrier_search' value='".$criteres['pattern']."'/>
       <div id='calendrier_search_button'><img src='sites/all/themes/zen_ifres/images/icone_recherche.png'/></div>
     </div><!--calendrier_search-->";
   $output .= theme("cataloforma_recherche_avancee", array("criteres" => $criteres)); 
   $output .="  
     <div class='calendrier_legendes'>
-      <div class='calendrier_legende'>
-        <div class='calendrier_legende_color' style='background: #0E6767'></div>
-        <div class='calendrier_legende_label'><span>".t('actuelle')."</span></div>
-      </div>
-      <div class='calendrier_legende'>
-        <div class='calendrier_legende_color' style='background: #ab42aa'></div>
-        <div class='calendrier_legende_label'><span>".t('trop tard')."</span></div>
-      </div>
-      <div class='calendrier_legende'>
-        <div class='calendrier_legende_color' style='background: #555555'></div>
-        <div class='calendrier_legende_label'><span>".t('passee')."</span></div>
-      </div>
-      <div class='calendrier_legende'>
-        <div class='calendrier_legende_color' style='background: #e53333'></div>
-        <div class='calendrier_legende_label'><span>".t('complete')."</span></div>
-      </div>
+      <div class='formations_legende'>
+          <div class='formation_status_F'></div>
+          <div class='formations_legende_label'><span>".t('complete')."</span></div>
+        </div>
+        <div class='formations_legende'>
+          <div class='formation_status_L'></div>
+          <div class='formations_legende_label'><span>".t('trop tard')."</span></div>
+        </div>
+        <div class='formations_legende'>
+          <div class='formation_status_U'></div>
+          <div class='formations_legende_label'><span>".t('modifiee')."</span></div>
+        </div>
+        <div class='formations_legende'>
+          <div class='formation_status_N'></div>
+          <div class='formations_legende_label'><span>".t('nouvelle')."</span></div>
+        </div>
     </div><!--calendrier_legendes-->
   </div><!--calendrier_toolbar-->  
   <div id='calendrier'>
   </div><!--calendrier-->
   <div class='calendrier_toolbar'>
     <div class='calendrier_legendes'>
-      <div class='calendrier_legende'>
-        <div class='calendrier_legende_color' style='background: #0E6767'></div>
-        <div class='calendrier_legende_label'><span>".t('actuelle')."</span></div>
-      </div>
-      <div class='calendrier_legende'>
-        <div class='calendrier_legende_color' style='background: #ab42aa'></div>
-        <div class='calendrier_legende_label'><span>".t('trop tard')."</span></div>
-      </div>
-      <div class='calendrier_legende'>
-        <div class='calendrier_legende_color' style='background: #555555'></div>
-        <div class='calendrier_legende_label'><span>".t('passee')."</span></div>
-      </div>
-      <div class='calendrier_legende'>
-        <div class='calendrier_legende_color' style='background: #e53333'></div>
-        <div class='calendrier_legende_label'><span>".t('complete')."</span></div>
-      </div>
+      <div class='formations_legende'>
+          <div class='formation_status_F'></div>
+          <div class='formations_legende_label'><span>".t('complete')."</span></div>
+        </div>
+        <div class='formations_legende'>
+          <div class='formation_status_L'></div>
+          <div class='formations_legende_label'><span>".t('trop tard')."</span></div>
+        </div>
+        <div class='formations_legende'>
+          <div class='formation_status_U'></div>
+          <div class='formations_legende_label'><span>".t('modifiee')."</span></div>
+        </div>
+        <div class='formations_legende'>
+          <div class='formation_status_N'></div>
+          <div class='formations_legende_label'><span>".t('nouvelle')."</span></div>
+        </div>
     </div><!--calendrier_legendes-->
   </div><!--calendrier_toolbar-->
   <div class='calendrier_toolbar'>
@@ -1272,6 +1332,9 @@ function theme_cataloforma_formation_view($variables){
     <H1>$formation->intitule <span>( $formation->code )</span></H1>
     <div class='formation'>  
     <table>
+  ";
+  if($formation->is_smo == 0) {
+    $content .= "  
       <tr class='formation_field'>
         <td class='formation_label'>
           <label for='date'>".t('date')."</label>
@@ -1280,7 +1343,8 @@ function theme_cataloforma_formation_view($variables){
           <span id='date'>".t("le @date de @heuredeb a @heurefin", array('@date' => date(CATALOFORMA_FORMAT_DATE, $formation->date_debut), '@heuredeb' => date(CATALOFORMA_FORMAT_HEURE, $formation->date_debut), '@heurefin' => date(CATALOFORMA_FORMAT_HEURE, $formation->date_fin)))."</span>
         </td><!--formation_value-->
       </tr><!--formation_field-->
-  ";
+    ";
+  }  
 
   if(!empty($formation->intervenants_names)){
     $content .= "
@@ -1430,17 +1494,6 @@ function theme_cataloforma_formation_view($variables){
       </tr><!--formation_field-->
     ";
   }
-
-  $content .= "
-    <tr class='formation_field'>
-      <td class='formation_label'>
-        <label for='formation_type'>".t('formation type')."</label>
-      </td><!-- formation_label-->
-      <td class='formation_value'>
-        <span id='formation_type'>"._cataloforma_formation_getType($formation->id_type)."</span>
-      </td><!--formation_value-->
-    </tr><!--formation_field-->
-  ";
 
   $options = array(1 => t('face-to-face'), 2 => t('on line'), 3 => t('blended learning'));
   $content .= "
@@ -1617,6 +1670,18 @@ function theme_cataloforma_formation_edit($variables){
         </td><!-- formation_label-->
         <td class='formation_value'>
           <input type='text' name='code' id='code' value='".((isset($formation->code)) ? $formation->code : "")."' />
+        </td><!--formation_value-->
+      </tr><!--formation_field-->
+
+      <tr class='formation_field'>
+        <td class='formation_label'>
+          <label for='formation_type'>".t('formation type')."</label>
+        </td><!-- formation_label-->
+        <td class='formation_value'>
+          <select id='is_smo' name='is_smo'>
+            <option value='0' ".(((empty($formation)))||((!empty($formation))&&(0 == $formation->is_smo))? "checked": "")." >".t("formation")."</option>
+            <option value='1' ".(((!empty($formation))&&(1 == $formation->is_smo))? "checked": "")." >".t("smo")."</option>
+          </select>
         </td><!--formation_value-->
       </tr><!--formation_field-->
 
@@ -1810,23 +1875,6 @@ function theme_cataloforma_formation_edit($variables){
     </tr><!--formation_field-->
   ";
 
-  $id_types = _cataloforma_formation_getTypes();
-  $content .= "
-    <tr class='formation_field'>
-      <td class='formation_label'>
-        <label for='formation_type'>".t('formation type')."</label>
-      </td><!-- formation_label-->
-      <td class='formation_value'>
-        <select name='id_type' name='id_type'>";
-    foreach($id_types as $id_type){
-      $content .= "<option value='".$id_type->id."' ".(((empty($formation))&&($id_type->id == 1))||((!empty($formation))&&($id_type->id == $formation->id_type))? "checked": "")." >".check_plain($id_type->intitule)."</option>";
-    }
-  $content .="
-        </select>
-      </td><!--formation_value-->
-    </tr><!--formation_field-->
-  ";
-
   $modalites = array(1 => t('face-to-face'), 2 => t('on line'), 3 => t('blended learning'));
   $content .= "
     <tr class='formation_field'>
@@ -1998,22 +2046,6 @@ function theme_cataloforma_recherche_avancee($variables){
           </select>
         </td>
       </tr>
-      <tr class='recherche_field'>
-        <td class='recherche_label'>
-          <label for='id_type'>".t('id_type')."</label>
-        </td>
-        <td class='recherche_value'>
-          <select id='id_type' name='id_type'>
-            <option value='*' ".( $criteres['id_type'] == "*" ? "selected" : "" )." >".t('toutes')."</option>";
-  $id_types = _cataloforma_formation_getTypes();
-  foreach($id_types as $id_type){
-    $output .= "<option value='".$id_type->id."'>".check_plain($id_type->intitule)."</option>";
-  }
-
-  $output .="
-          </select>
-        </td>
-      </tr>
       <tr>
         <td  class='toolbar' colspan='2'>
           <div id='formations_clrsearch_button'><img src='sites/all/themes/zen_ifres/images/icone_clear.png'/></div>
@@ -2095,6 +2127,10 @@ function theme_cataloforma_formations($variables){
   <form id='formationsForm' method='post' name='formationsForm'>
   <div class='formations_toolbar'>
     <div class='formations_search'>
+      <select id='is_smo' name='is_smo'>
+        <option value='0' ".(((empty($criteres['is_smo'])) || ($criteres['is_smo'] == 0)) ? " checked " : "").">".t('formation')."</option>
+        <option value='1' ".(((!empty($criteres['is_smo'])) && ($criteres['is_smo'] == 1)) ? " checked " : "").">".t('smo')."</option> 
+      </select>
       <select id='annee_acad' name='annee_acad'>
   ";
   $isFirst = true;
@@ -2187,9 +2223,9 @@ function theme_cataloforma_ajax_formations($variables){
     <table id='liste_formations'>
       <tr>";
   if(user_access(CATALOFORMA_PERM_ADMIN)) $content.= "<th id='formations_col_id'><input type='checkbox' id='all_formations' name='all_formations' value='1' ".(!empty($data['all_formations']) ? "checked" : "")."/></th>";
-  $content .=" 
-        <th id='formations_col_status'>&nbsp;</th>     
-        <th id='formations_col_date'>".t("date debut")."</th>
+  $content .= "<th id='formations_col_status'>&nbsp;</th> ";
+  if($data['is_smo'] == 0) $content .= "<th id='formations_col_date'>".t("date debut")."</th>";
+  $content .="    
         <th id='formations_col_code'> ".t("code")."</th>
         <th id='formations_col_intitule'>".t("intitule")."</th>
       </tr>
@@ -2198,11 +2234,10 @@ function theme_cataloforma_ajax_formations($variables){
     $content .= "
       <tr ".($formation->is_publie == 0 ? "class='nonpublie' " : "class='publie'").">";
     if(user_access(CATALOFORMA_PERM_ADMIN)) $content .= "<td><input type='checkbox' name='formations[]' value='".$formation->id."' ".(!empty($data['formations']) && in_array($formation->id, $data['formations']) ? "checked" : "")." /></td>";
-    $content .= "
-        <td><div class='formation_status_".$formation->status."'></div></td>
-        <td>".date(CATALOFORMA_FORMAT_DATE_HEURE, $formation->date_debut)." ".t("a")." ".date(CATALOFORMA_FORMAT_HEURE, $formation->date_fin)."</td>
-        <td><a href='#' class='formations_bycode'>".(!empty($data) ? utf8_decode($formation->code) : $formation->code)."</a></td>
-        <td><div class='formation_color_".$formation->status."'><a href='./formation/view/".$formation->id."'>".(!empty($data) ? utf8_decode($formation->intitule) : $formation->intitule)."</a></div></td>
+    $content .= "<td><div class='formation_status_".$formation->status."'></div></td>";
+    if($data['is_smo'] == 0) $content .= "<td>".date(CATALOFORMA_FORMAT_DATE_HEURE, $formation->date_debut)." ".t("a")." ".date(CATALOFORMA_FORMAT_HEURE, $formation->date_fin)."</td>";
+    $content .= "<td><a href='#' class='formations_bycode'>".(!empty($data) ? ($formation->code) : $formation->code)."</a></td>
+        <td><div class='formation_color_".$formation->status."'><a href='./formation/view/".$formation->id."'>".(!empty($data) ? ($formation->intitule) : $formation->intitule)."</a></div></td>
       </tr>
     ";
   }
@@ -2277,7 +2312,7 @@ function theme_cataloforma_ajax_formations($variables){
     </div>
     ";  
   }
-  return $content;
+  return $content; 
 }
 
 function theme_cataloforma_inscrit($variables){
@@ -2346,7 +2381,6 @@ function theme_cataloforma_inscrit($variables){
         </div><!--inscrit_onglets-->
         <div class='inscrit_tab' id='progcours'>
           <div class='progcours_annee'>
-            ".t('annee')."
             <select id='annee_acad' name='annee_acad'>
              ";
   $isFirst = true;
@@ -2374,7 +2408,7 @@ function theme_cataloforma_inscrit($variables){
               </tr>";
     $tot_credits = 0; 
     foreach($histo as $hist){
-      $content .= "<tr><td>".date(CATALOFORMA_FORMAT_DATE, $hist->date_debut)."</td><td><a href='".CATALOFORMA_ROOT."/formation/view/".$hist->id."'>".$hist->code."</a></td><td>".$hist->intitule."</td><td>".$hist->nbr_credits."</td><td>".($hist->is_present ? t('oui') : "-")."</td></tr>";
+      $content .= "<tr><td>".date(CATALOFORMA_FORMAT_DATE, ($hist->is_smo == 0 ? $hist->date_debut : $hist->date_inscription))."</td><td><a href='".CATALOFORMA_ROOT."/formation/view/".$hist->id."'>".$hist->code."</a></td><td>".$hist->intitule."</td><td>".$hist->nbr_credits."</td><td>".($hist->is_present ? t('oui') : "-")."</td></tr>";
       if($hist->is_present) $tot_credits += $hist->nbr_credits;
     }
     $content .="<tr>
@@ -2548,9 +2582,9 @@ function _cataloforma_bd_formation_getAllFormationsPubliees($sort = null, $by_pa
     $pager = $sort['pager']; 
   }
   if(user_access(CATALOFORMA_PERM_ADMIN)){
-    $cond = 1;
+    $cond = "is_smo = 0";
   } else {
-    $cond = "is_publie = 1";
+    $cond = "is_smo = 0 AND is_publie = 1";
   }
 
   $sql = "SELECT f.*, ";
@@ -2563,7 +2597,7 @@ function _cataloforma_bd_formation_getAllFormationsPubliees($sort = null, $by_pa
   $formations = db_query($sql);
 
   $result = array(
-    'count' => $formations['count'](),
+    'count' => count($formations),
     'items' => $formations
   );
   return $result;
@@ -2572,8 +2606,7 @@ function _cataloforma_bd_formation_getAllFormationsPubliees($sort = null, $by_pa
 function _cataloforma_bd_formation_getAllFormations($criteres=array(), $sort = null, $by_pager = true){
   global $user;
 
-  //if(empty($criteres)) return _cataloforma_bd_formation_getAllFormationsPubliees($sort, $by_pager);
-  if(empty($sort)){
+  if(empty($sort['col'])){
     $col   = "date_debut";
     $by    = "DESC";
     $pager = "0";
@@ -2608,7 +2641,7 @@ function _cataloforma_bd_formation_getAllFormations($criteres=array(), $sort = n
   $sql .= "IF(((UNIX_TIMESTAMP() - date_created) DIV 86400)< 15,'N','')))) AS status ";  
   $sql .= " FROM {tbl_formations} f WHERE ";
 
-  $sqlCount = "SELECT COUNT(*) FROM {tbl_formations} f WHERE";
+  $sqlCount = "SELECT COUNT(*) FROM {tbl_formations} f WHERE ";
 
   $vars = array();
   $conds = array();
@@ -2704,10 +2737,9 @@ function _cataloforma_bd_formation_getAllFormations($criteres=array(), $sort = n
     }
   }
   
-  if((!empty($criteres['id_type'])) && ($criteres['id_type'] != '*')){
-    $conds[] = "id_type = :id_type";
-    $vars[":id_type"] = $criteres['id_type'];
-  }
+  $conds[] = "is_smo = :is_smo";
+  $vars[":is_smo"] = (empty($criteres['is_smo']) ? 0 : $criteres['is_smo']);
+  
   if(!user_access(CATALOFORMA_PERM_ADMIN)){
     $conds[] = "is_publie = :is_publie";
     $vars[":is_publie"] = 1;
@@ -2804,9 +2836,15 @@ function _cataloforma_bd_formation_addInscrit($id_formation, $uid){
   return drupal_write_record('tbl_formation_inscrits', $inscription);
 }
 
-
+function _cataloforma_sort_histo($a, $b){
+  $a_ref = ($a->is_smo == 0 ? $a->date_debut : $a->date_inscription);
+  $b_ref = ($b->is_smo == 0 ? $b->date_debut : $b->date_inscription);
+  if($a_ref == $b_ref) return 0;
+  return ($a_ref < $b_ref) ? -1 : 1;
+}
 function _cataloforma_bd_inscrit_getFormations($uid){
-  $formations = db_query("SELECT f.id, f.intitule, f.code, f.nbr_credits, f.annee_acad, f.date_debut, i.is_present FROM {tbl_formation_inscrits} i, {tbl_formations} f WHERE i.uid = :uid AND i.is_annule = 0 AND i.id_formation = f.id ORDER BY f.date_debut DESC;", array(":uid" => $uid));
+  $formations = db_query("SELECT f.id, f.intitule, f.code, f.nbr_credits, f.annee_acad, f.date_debut, f.is_smo, i.date_inscription, i.is_present FROM {tbl_formation_inscrits} i, {tbl_formations} f WHERE i.uid = :uid AND i.is_annule = 0 AND i.id_formation = f.id ORDER BY f.date_debut DESC;", array(":uid" => $uid));
+  usort($formations, "_cataloforma_sort_histo");
   return $formations;
 }
 
@@ -2959,14 +2997,6 @@ function _cataloforma_formation_code_exists($code){
   return db_query("SELECT COUNT(*) > 0 FROM {tbl_formations} WHERE code = :code;", array(':code' => $code))->fetchField();
 }
 
-function _cataloforma_formation_getTypes(){
-  return db_query("SELECT id, intitule FROM {tbl_formation_types} ORDER BY id;");
-}
-
-function _cataloforma_formation_getType($id_type){
-  return db_query("SELECT intitule FROM {tbl_formation_types} WHERE id = :id_type;", array(':id_type' => $id_type))->fetchField();
-}
-
 function _cataloforma_bd_get_AllAcads($all=true){
   if($all){
     $annee_min = _cataloforma_get_acad(db_query("SELECT MIN(date_debut) FROM {tbl_formations};")->fetchField());
@@ -3108,7 +3138,7 @@ function cataloforma_alert_inscription($id_formation, $uid, $op = 'add'){
       $body    = 'Hi @firstname @lastname'."\r\n\n";
       $body   .= 'You are registered to the following formation :'."\r\n\n".'(@code) @title'."\r\n\n";
       $body   .= 'http://www.ifres.ulg.ac.be/portail/formation/view/@idformation'."\r\n\n";
-      $body   .= 'See you soon on @datedeb'."\r\n\n";
+      $body   .= 'See you soon'.($formation->is_smo == 0 ? ' on @datedeb' : '')."\r\n\n";
       $files   = array($formation->fid);
   }
   $params = array(
@@ -3411,15 +3441,19 @@ function _cataloforma_infocours($formation, $only_presence = false){
   
   if(!$only_presence) {    
     $row = array();
-    $row['dateheure_deb'] = utf8_decode(t('begin date'));
-    $row['dateheure_fin'] = utf8_decode(t('end date'));
+    if($formation->is_smo == 0) {
+      $row['dateheure_deb'] = utf8_decode(t('begin date'));
+      $row['dateheure_fin'] = utf8_decode(t('end date'));
+    }  
     $row['lieu'] = utf8_decode(t('at place'));
     $table[] = $row;
     unset($row);
     
     $row = array();
-    $row['dateheure_deb'] = date(CATALOFORMA_FORMAT_DATE_HEURE,$formation->date_debut);
-    $row['dateheure_fin'] = date(CATALOFORMA_FORMAT_DATE_HEURE,$formation->date_fin);
+    if($formation->is_smo == 0) {
+      $row['dateheure_deb'] = date(CATALOFORMA_FORMAT_DATE_HEURE,$formation->date_debut);
+      $row['dateheure_fin'] = date(CATALOFORMA_FORMAT_DATE_HEURE,$formation->date_fin);
+    }  
     $row['lieu'] = "\"" . str_replace(chr(13), "", utf8_decode(_cataloforma_html_to_brut($formation->lieu))) . "\"" ;
     $table[] = $row;
     unset($row);
@@ -3631,7 +3665,7 @@ function _cataloforma_old_ifres_transfert(){
       } else $formation->id_modifby      = $convert_uids[$old_formation->id_modifby];
       $formation->annee_acad      = $old_formation->annee_acad;
       $formation->lieu            = $old_formation->lieu;
-      $formation->id_type         = $old_formation->id_type;
+      $formation->is_smo          = 0;
       drupal_write_record('tbl_formations', $formation);
 
       $log = new CataloformaLog();
@@ -3673,7 +3707,7 @@ function _cataloforma_old_ifres_transfert(){
         } else $formation->id_modifby = $convert_uids[$old_formation->id_modifby];
         $formation->annee_acad      = $old_formation->annee_acad;
         $formation->lieu            = $old_formation->lieu;
-        $formation->id_type         = $old_formation->id_type;
+        $formation->is_smo          = $old_formation->is_smo;
         drupal_write_record('tbl_formations', $formation, 'id');
         
         $log = new CataloformaLog();

@@ -22,7 +22,7 @@
       type:"POST",
       async:false,
       url: "./ajax/calendrier",
-      data: { pattern: $('#calendrier_search').val() },
+      data: "annee_acad="+ $('#annee_acad').val() + "&pattern="+ $('#calendrier_search').val(),
       dataType: 'text',
       success: refreshcalendrier,
       error: alertError

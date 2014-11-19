@@ -39,6 +39,13 @@
     }//-----------------------------------------------------------------------------------------------------RAPPELS
     else if($('#pdf').length){//Formulaire d'édition de formation-------------------------------------------FORMATION
       //alert("EDITFORM");
+      $('#is_smo').change(function(){
+        if ($('#is_smo').val() == 1) {//SMO
+          $('#date_debut_date').parent().parent().hide();
+        } else {
+          $('#date_debut_date').parent().parent().show();
+        }
+      });
       $('#pdf').change(function(){
         $('#clearPdf').show();
       });
@@ -313,6 +320,11 @@
         getFormations();
       });
 
+      $('#is_smo').change(function(){
+        $('#pager_formations').val('0');
+        getFormations();
+      });
+
       $('#formations_advsearch_button').click(function(){
         $('#pager_formations').val('0');
         getFormations();
@@ -352,7 +364,7 @@
       });
 
       $('#add_formation').click(function(){
-        window.location = loca+"formation/edit/0";
+        window.location = loca+"formation/new";
       });
 
       $('#formations_clrsearch_button').click(function(){
@@ -599,7 +611,7 @@
   }
 
   function refreshFormations(options){
-    $('#formations').html(options);
+     $('#formations').html(options);
     initFormations();
   };
 
